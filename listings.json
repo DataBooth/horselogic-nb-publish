@@ -3,12 +3,7 @@
     "listing": "/index.html",
     "items": [
       "/logfile-reconciliation-RPE.html",
-      "/logfile-to-database-RPE.html",
-      "/logfile-reconciliation-CB.html",
-      "/logfile-to-database-CB.html",
-      "/database-queries-RPE.html",
-      "/database-queries-CB.html",
-      "/corrections-to-database-CB.html"
+      "/logfile-to-database-RPE.html"
     ]
   }
 ]
