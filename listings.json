@@ -5,7 +5,9 @@
       "/logfile-reconciliation-RPE.html",
       "/logfile-to-database-RPE.html",
       "/logfile-reconciliation-CB.html",
-      "/database-queries-RPE.html"
+      "/logfile-to-database-CB.html",
+      "/database-queries-RPE.html",
+      "/corrections-to-database-CB.html"
     ]
   }
 ]
