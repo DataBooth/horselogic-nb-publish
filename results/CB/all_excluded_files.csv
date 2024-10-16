@@ -1,35 +1,93 @@
-0,Experiment_2023-10-12T15:46:06.888927_test_1_Test Type 1.log
-1,Experiment_2023-10-12T16:40:33.235990_test_2_Test Type 1.log
-2,Experiment_2023-10-12T18:03:42.171375_test_3_Test Type 1.log
-3,Experiment_2023-10-12T18:22:18.941841_test_4_Test Type 1.log
-4,Experiment_2023-10-14T14:04:33.216879_test_5_Test Type 1.log
-5,Experiment_2023-10-14T14:18:19.591461_test_6_Test Type 1.log
-6,Experiment_2023-10-14T16:16:13.665486_test_7_Test Type 1.log
-7,Experiment_2023-10-14T16:17:12.182969_test_8_Test Type 1.log
-8,Experiment_2023-10-14T16:22:34.525003_test_9_Test Type 1.log
-9,Experiment_2023-10-14T16:23:40.527651_test_10_Test Type 1.log
-10,Experiment_2023-10-14T16:27:08.126468_test_11_Test Type 1.log
-11,Experiment_2023-10-15T12:56:51.818481_test_12_Test Type 1.log
-12,Experiment_2023-10-19T11:02:06.411267_test_13_Test Type 3.log
-13,Experiment_2023-10-19T11:03:39.864939_test_14_Test Type 3.log
-14,Experiment_2023-10-22T08:59:23.829638_test_15_Training - fixed.log
-15,Experiment_2023-10-22T09:01:19.355843_test_16_Test Type 1.log
-16,Experiment_2023-11-12T12:47:48.242423_test_17_Training - fixed.log
-17,Experiment_2023-11-12T12:48:52.126658_test_18_Training randomised Type 1.log
-18,Experiment_2023-11-12T12:49:56.391714_test_19_Training - fixed.log
-19,Experiment_2023-11-12T12:51:20.899043_test_20_Test Type 1.log
-20,Experiment_2023-11-12T12:55:08.300741_test_21_Test Type 1.log
-21,Experiment_2023-11-12T13:09:31.005188_test_22_Training randomised Type 1.log
-22,Experiment_2023-11-12T13:11:43.215184_test_23_Test Type 1.log
-23,Experiment_2023-11-12T18:43:03.826789_test_24_Training - fixed.log
-24,Experiment_2023-11-13T02:29:52.642650_olive_nan_Training - fixed.log
-25,Experiment_2023-11-13T11:33:46.376405_olive_nan_Training - fixed.log
-26,Experiment_2023-11-13T20:03:39.068756_olive_nan_Training - fixed.log
-27,Experiment_2023-11-14T05:58:36.907156_olive_nan_Training randomised Type 1.log
-28,Experiment_2023-11-14T14:59:07.142800_olive_nan_Training randomised Type 2.log
-29,Experiment_2023-11-14T17:05:57.733618_test_25.0_Test Type 1.log
-30,Experiment_2023-11-14T23:36:17.533465_olive_nan_Test Type 1.log
-31,Experiment_2023-11-15T09:41:39.426216_test_26.0_Training - fixed.log
-32,Experiment_2023-11-15T09:42:21.067286_test_27.0_Test Type 2.log
-33,Experiment_2023-11-15T16:30:49.568257_test_28.0_Test Type 1.log
-34,Experiment_2023-11-16T22:24:59.894156_test_29.0_Test Type 1.log
+0,Experiment_2023-10-05T00:33:20.982985_bonnie_34_Training - fixed.log
+1,Experiment_2023-10-05T00:34:54.463462_bonnie_35_Training - fixed.log
+2,Experiment_2023-10-05T00:36:53.748319_bonnie_36_Training randomised Type 1.log
+3,Experiment_2023-10-05T00:37:20.038515_bonnie_37_Training randomised Type 2.log
+4,Experiment_2023-10-05T00:38:53.793295_bonnie_38_Training - fixed.log
+5,Experiment_2023-10-05T00:40:07.655743_bonnie_39_Training - fixed.log
+6,Experiment_2023-10-05T00:40:27.842920_bonnie_40_Test Type 1.log
+7,Experiment_2023-10-05T00:40:48.563909_bonnie_41_Test Type 2.log
+8,Experiment_2023-10-05T12:35:54.059431_bonnie_42_Training - fixed.log
+9,Experiment_2023-10-05T12:41:54.062043_bonnie_43_Training randomised Type 1.log
+10,Experiment_2023-10-05T12:44:28.260268_bonnie_44_Test Type 1.log
+11,Experiment_2023-10-05T13:48:28.145688_bonnie_45_Training - fixed.log
+12,Experiment_2023-10-05T14:02:11.006171_bonnie_46_Training randomised Type 1.log
+13,Experiment_2023-10-05T14:30:12.801386_bonnie_47_Training - fixed.log
+14,Experiment_2023-10-05T14:47:30.073739_bonnie_48_Training randomised Type 1.log
+15,Experiment_2023-10-06T08:17:38.338641_bonnie_49_Training randomised Type 1.log
+16,Experiment_2023-10-06T08:20:13.535897_bonnie_50_Training randomised Type 1.log
+17,Experiment_2023-10-06T11:59:46.930869_bonnie_51_Training - fixed.log
+18,Experiment_2023-10-06T12:10:22.324328_bonnie_52_Training - fixed.log
+19,Experiment_2023-10-06T12:15:48.272068_atom_1_Training - fixed.log
+20,Experiment_2023-10-06T13:17:11.425590_ash_1_Training - fixed.log
+21,Experiment_2023-10-06T16:19:49.428080_filly_1_Training - fixed.log
+22,Experiment_2023-10-06T16:22:24.377220_filly_2_Training - fixed.log
+23,Experiment_2023-10-06T16:29:56.393875_filly_3_Training - fixed.log
+24,Experiment_2023-10-06T19:20:07.231109_molly_1_Training - fixed.log
+25,Experiment_2023-10-08T09:29:29.527506_atom_4_Training randomised Type 1.log
+26,Experiment_2023-10-09T10:02:29.985144_bonnie_57_Training - fixed.log
+27,Experiment_2023-10-09T10:03:02.623587_bonnie_58_Training randomised Type 2.log
+28,Experiment_2023-10-09T10:05:22.837706_bonnie_59_Test Type 1.log
+29,Experiment_2023-10-09T10:06:53.674873_bonnie_60_Test Type 1.log
+30,Experiment_2023-10-09T15:08:04.475922_filly_7_Training - fixed.log
+31,Experiment_2023-10-09T15:18:10.013061_dougie_4_Training randomised Type 2.log
+32,Experiment_2023-10-09T15:18:57.397366_dougie_5_Training randomised Type 2.log
+33,Experiment_2023-10-09T15:24:15.757940_dougie_6_Training randomised Type 2.log
+34,Experiment_2023-10-09T15:46:46.515239_bonnie_61_Test Type 1.log
+35,Experiment_2023-10-09T17:03:22.507500_bonnie_62_Training - fixed.log
+36,Experiment_2023-10-09T18:29:49.279855_molly_5_Test Type 1.log
+37,Experiment_2023-10-10T08:25:02.700008_bonnie_64_Test Type 1.log
+38,Experiment_2023-10-10T08:33:44.845499_bonnie_65_Test Type 1.log
+39,Experiment_2023-10-10T08:38:11.132513_bonnie_66_Test Type 1.log
+40,Experiment_2023-10-10T08:39:34.167268_bonnie_67_Test Type 1.log
+41,Experiment_2023-10-10T08:42:47.519718_bonnie_68_Test Type 1.log
+42,Experiment_2023-10-10T08:43:09.979183_bonnie_69_Test Type 2.log
+43,Experiment_2023-10-10T08:47:57.840954_bonnie_70_Test Type 1.log
+44,Experiment_2023-10-10T08:54:15.644434_bonnie_71_Test Type 1.log
+45,Experiment_2023-10-10T09:39:11.099093_bonnie_72_Test Type 1.log
+46,Experiment_2023-10-11T09:05:00.123714_bonnie_74_Test Type 1.log
+47,Experiment_2023-10-12T09:21:52.941431_bonnie_75_Test Type 1.log
+48,Experiment_2023-10-12T09:25:07.012880_bonnie_76_Test Type 1.log
+49,Experiment_2023-10-12T15:46:06.888927_test_1_Test Type 1.log
+50,Experiment_2023-10-12T16:40:33.235990_test_2_Test Type 1.log
+51,Experiment_2023-10-12T18:03:42.171375_test_3_Test Type 1.log
+52,Experiment_2023-10-12T18:22:18.941841_test_4_Test Type 1.log
+53,Experiment_2023-10-14T14:04:33.216879_test_5_Test Type 1.log
+54,Experiment_2023-10-14T14:18:19.591461_test_6_Test Type 1.log
+55,Experiment_2023-10-14T16:16:13.665486_test_7_Test Type 1.log
+56,Experiment_2023-10-14T16:17:12.182969_test_8_Test Type 1.log
+57,Experiment_2023-10-14T16:22:34.525003_test_9_Test Type 1.log
+58,Experiment_2023-10-14T16:23:40.527651_test_10_Test Type 1.log
+59,Experiment_2023-10-14T16:27:08.126468_test_11_Test Type 1.log
+60,Experiment_2023-10-15T12:56:51.818481_test_12_Test Type 1.log
+61,Experiment_2023-10-16T10:38:24.993736_ash_7_Test Type 1.log
+62,Experiment_2023-10-19T11:02:06.411267_test_13_Test Type 3.log
+63,Experiment_2023-10-19T11:03:39.864939_test_14_Test Type 3.log
+64,Experiment_2023-10-22T08:59:23.829638_test_15_Training - fixed.log
+65,Experiment_2023-10-22T09:01:19.355843_test_16_Test Type 1.log
+66,Experiment_2023-11-12T12:47:48.242423_test_17_Training - fixed.log
+67,Experiment_2023-11-12T12:48:52.126658_test_18_Training randomised Type 1.log
+68,Experiment_2023-11-12T12:49:56.391714_test_19_Training - fixed.log
+69,Experiment_2023-11-12T12:51:20.899043_test_20_Test Type 1.log
+70,Experiment_2023-11-12T12:55:08.300741_test_21_Test Type 1.log
+71,Experiment_2023-11-12T13:09:31.005188_test_22_Training randomised Type 1.log
+72,Experiment_2023-11-12T13:11:43.215184_test_23_Test Type 1.log
+73,Experiment_2023-11-12T18:43:03.826789_test_24_Training - fixed.log
+74,Experiment_2023-11-13T02:29:52.642650_olive_nan_Training - fixed.log
+75,Experiment_2023-11-13T11:33:46.376405_olive_nan_Training - fixed.log
+76,Experiment_2023-11-13T12:39:28.591968_clover_nan_Training - fixed.log
+77,Experiment_2023-11-13T19:16:57.507097_freya_nan_Training randomised Type 1.log
+78,Experiment_2023-11-13T20:03:39.068756_olive_nan_Training - fixed.log
+79,Experiment_2023-11-14T00:11:57.637594_george_4.0_Training randomised Type 2.log
+80,Experiment_2023-11-14T05:58:36.907156_olive_nan_Training randomised Type 1.log
+81,Experiment_2023-11-14T07:07:17.918670_pumba_nan_Training randomised Type 1.log
+82,Experiment_2023-11-14T11:03:25.088331_nix_6.0_Training - fixed.log
+83,Experiment_2023-11-14T12:05:21.440157_dusty_5.0_Training - fixed.log
+84,Experiment_2023-11-14T14:59:07.142800_olive_nan_Training randomised Type 2.log
+85,Experiment_2023-11-14T17:05:57.733618_test_25.0_Test Type 1.log
+86,Experiment_2023-11-14T18:44:47.627391_myrtle_7.0_Training randomised Type 2.log
+87,Experiment_2023-11-14T23:36:17.533465_olive_nan_Test Type 1.log
+88,Experiment_2023-11-15T09:41:39.426216_test_26.0_Training - fixed.log
+89,Experiment_2023-11-15T09:42:21.067286_test_27.0_Test Type 2.log
+90,Experiment_2023-11-15T16:30:49.568257_test_28.0_Test Type 1.log
+91,Experiment_2023-11-16T17:47:36.706980_gio_8.0_Test Type 1.log
+92,Experiment_2023-11-16T22:24:59.894156_test_29.0_Test Type 1.log
