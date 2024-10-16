@@ -130,7 +130,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#about-this-repository" id="toc-about-this-repository" class="nav-link active" data-scroll-target="#about-this-repository">About This Repository</a>
   <ul class="collapse">
   <li><a href="#purpose" id="toc-purpose" class="nav-link" data-scroll-target="#purpose">Purpose</a></li>
-  <li><a href="#features" id="toc-features" class="nav-link" data-scroll-target="#features">Features</a>
+  <li><a href="#code-features" id="toc-code-features" class="nav-link" data-scroll-target="#code-features">Code Features</a>
   <ul class="collapse">
   <li><a href="#project-class" id="toc-project-class" class="nav-link" data-scroll-target="#project-class">Project Class</a></li>
   <li><a href="#subject-class" id="toc-subject-class" class="nav-link" data-scroll-target="#subject-class">Subject Class</a></li>
@@ -165,35 +165,35 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="about-this-repository" class="level1">
 <h1>About This Repository</h1>
-<p>TODO</p>
+<p>This repository is designed and built by Michael Booth of [DataBooth] in colloboration with the research lead <a href="mailto:ponies@hillydale.com.au">Cathrynne Henshall</a>.</p>
 <section id="purpose" class="level2">
 <h2 class="anchored" data-anchor-id="purpose">Purpose</h2>
-<p>The primary goal of this repository is to …</p>
+<p>The provided notebooks and supporting code are part of a data analysis pipeline for horse behavioral experiments. The primary goal is to process and analyse log files generated during these experiments, for both Reward Prediction Error (RPE) and Cognitive Bias (CB) experiments.</p>
 </section>
-<section id="features" class="level2">
-<h2 class="anchored" data-anchor-id="features">Features</h2>
+<section id="code-features" class="level2">
+<h2 class="anchored" data-anchor-id="code-features">Code Features</h2>
 <p>Each of the notebooks uses some (or all) of the following custom classes to assist with the analysis:</p>
 <section id="project-class" class="level3">
 <h3 class="anchored" data-anchor-id="project-class">Project Class</h3>
-<p>The Project class is like a central organizer for your research project. It helps you keep everything tidy and in the right place. Here’s what it does:</p>
+<p>The Project class is like a central organiser for your research project. It helps you keep everything tidy and in the right place. Here’s what it does:</p>
 <ol type="1">
 <li>Sets up your project’s structure: It creates folders for your data, results, and other important files.</li>
-<li>Manages your database: It sets up and maintains a database where you can store all your experimental data.</li>
+<li>Manages your database: It sets up and maintains a database (by experiment type i.e.&nbsp;RPE or CB) where you can store all your experimental data.</li>
 <li>Keeps track of important information: It remembers things like what type of experiment you’re running and where all your files are located.</li>
 <li>Provides useful tools: It offers methods to help you do common tasks, like creating links to your files or exporting data.</li>
 </ol>
-<p>Think of the Project class as your personal assistant for your research project. It helps you stay organized and provides you with the tools you need to manage your experiments efficiently.</p>
+<p>Think of the Project class as your personal assistant for your research project. It helps you stay organised and provides you with the tools you need to manage your experiments efficiently.</p>
 </section>
 <section id="subject-class" class="level3">
 <h3 class="anchored" data-anchor-id="subject-class">Subject Class</h3>
 <p>The Subject class represents an individual participant in your experiment - in this case, a horse. It’s like a digital profile for each horse in your study. Here’s what it does:</p>
 <ol type="1">
 <li>Stores information about the horse: It keeps track of details like the horse’s name, cohort, and any other relevant characteristics.</li>
-<li>Manages experimental data: It helps you organize and access the data collected for each horse during the experiments.</li>
-<li>Provides easy access to subject-specific information: It allows you to quickly retrieve or update information about a particular horse.</li>
+<li>Manages experimental data: It helps you organise and access the data collected for each horse during the experiments.</li>
+<li>Provides easy access to subject-specific information: It allows you to quickly retrieve information about a particular horse.</li>
 </ol>
 <p>Think of the Subject class as a digital folder for each horse in your study. It keeps all the information about that horse in one place, making it easy for you to access and manage data for individual subjects.</p>
-<p>Together, these classes help you organize your research project, manage your data efficiently, and keep track of information about each participant in your study. They’re designed to make your research process smoother and more organized.</p>
+<p>Together, these classes help you organise your research project, manage your data efficiently, and keep track of information about each participant in your study. They’re designed to make your research process smoother and more organised.</p>
 </section>
 <section id="logfile-classes" class="level3">
 <h3 class="anchored" data-anchor-id="logfile-classes">Logfile Classes</h3>
@@ -244,13 +244,13 @@ ul.task-list li input[type="checkbox"] {
 <li>How long into the trial it occurred</li>
 </ul>
 <ol start="4" type="1">
-<li>ResponseCB Class: This is specific to cognitive bias experiments and records the subject’s responses, including:</li>
+<li>ResponseCB Class (CB experiments only): This is specific to cognitive bias experiments and records the subject’s responses, including:</li>
 </ol>
 <ul>
 <li>When the response occurred</li>
 <li>How long it took (response time)</li>
 </ul>
-<p>These classes work together to organize and make sense of the data from your experiments. They turn raw log files into structured data that’s easier to analyze and understand. The Logfile class does the hard work of interpreting each file, while the Logs class manages the collection of all your files.</p>
+<p>These classes work together to organise and make sense of the data from your experiments. They turn raw log files into structured data that’s easier to analyse and understand. The Logfile class does the hard work of interpreting each file, while the Logs class manages the collection of all your files.</p>
 
 
 </section>
