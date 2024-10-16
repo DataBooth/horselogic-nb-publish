@@ -130,6 +130,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#about-this-repository" id="toc-about-this-repository" class="nav-link active" data-scroll-target="#about-this-repository">About This Repository</a>
   <ul class="collapse">
   <li><a href="#purpose" id="toc-purpose" class="nav-link" data-scroll-target="#purpose">Purpose</a></li>
+  <li><a href="#high-lvel-workflow" id="toc-high-lvel-workflow" class="nav-link" data-scroll-target="#high-lvel-workflow">High Lvel Workflow</a></li>
   <li><a href="#code-features" id="toc-code-features" class="nav-link" data-scroll-target="#code-features">Code Features</a>
   <ul class="collapse">
   <li><a href="#project-class" id="toc-project-class" class="nav-link" data-scroll-target="#project-class">Project Class</a></li>
@@ -168,14 +169,89 @@ ul.task-list li input[type="checkbox"] {
 <p>This repository is designed and built by Michael Booth of [DataBooth] in colloboration with the research lead <a href="mailto:ponies@hillydale.com.au">Cathrynne Henshall</a>.</p>
 <section id="purpose" class="level2">
 <h2 class="anchored" data-anchor-id="purpose">Purpose</h2>
-<p>The provided notebooks and supporting code are part of a data analysis pipeline for horse behavioral experiments. The primary goal is to process and analyse log files generated during these experiments, for both Reward Prediction Error (RPE) and Cognitive Bias (CB) experiments.</p>
+<p>The provided notebooks and supporting code are part of a data analysis pipeline for horse behavioral experiments. The primary goal is to process and analyse log files generated during these experiments, and to store this data in databases, for both Reward Prediction Error (RPE) and Cognitive Bias (CB) experiments.</p>
+</section>
+<section id="high-lvel-workflow" class="level2">
+<h2 class="anchored" data-anchor-id="high-lvel-workflow">High Lvel Workflow</h2>
+<p>The provided code and notebooks focus on two types of experiments: RPE and CB. The process is essentially the same for both RPE and CB experiments, with minor differences in data structure (e.g.&nbsp;an additional table <code>ResponsesCB</code> for CB experiments).</p>
+<ol type="1">
+<li>Logfile Reconciliation: <code>logfile-reconciliation-CB.ipynb</code> <code>logfile-reconciliation-RPE.ipynb</code></li>
+</ol>
+<p>Purpose: Identify which log files should be included or excluded from the analysis for each experiment type.</p>
+<p>Steps: - Load and Parse Log Files: Load log files and parse their filenames to extract metadata. - Apply Exclusion Rules: Exclude log files based on predefined rules (e.g., test runs, bad data). - Export Lists: Export lists of included and excluded log files for further processing.</p>
+<ol start="2" type="1">
+<li>Logfile to Database:</li>
+</ol>
+<ul>
+<li><code>logfile-to-database-CB.ipynb</code></li>
+<li><code>logfile-to-database-RPE.ipynb</code></li>
+</ul>
+<p>Purpose: Load the reconciled log files into a DuckDB database for each experiment type.</p>
+<p>Steps: - Load Log Files: Load the log files determined to be included from the reconciliation step. - Parse and Extract Data: Extract relevant data from each log file and structure it for database insertion. - Insert Data into Database: Insert the parsed data into a DuckDB database.</p>
+<ol start="3" type="1">
+<li>Database Queries:</li>
+</ol>
+<ul>
+<li><code>database-queries-CB.ipynb</code></li>
+<li><code>database-queries-RPE.ipynb</code></li>
+</ul>
+<p>Purpose: Cross-check the data in the databases and provide examples of typical queries for each experiment type.</p>
+<p>Steps: - Setup Database Connection: Connect to the DuckDB database. - Run SQL Queries: Execute SQL queries to verify data integrity and demonstrate typical data retrieval operations. - Provide Query Examples: Showcase various SQL queries that might be useful for future analysis.</p>
+<p>Note: These notebooks do not perform specific data analysis at this stage. They serve as a foundation for future analysis, which may be conducted in additional notebooks or external tools.</p>
+<ol start="4" type="1">
+<li>Corrections to CB database:</li>
+</ol>
+<ul>
+<li><code>corrections-to-database-CB.ipynb</code></li>
+</ul>
+<p>Purpose: For CB experiments only, load and apply manual corrections to the CB database.</p>
+<ol start="5" type="1">
+<li><p>Supporting Code:</p></li>
+<li><p>Mermaid Diagram</p></li>
+</ol>
+<pre class="mermaid"><code>graph TD
+    A[Start] --&gt; B[Load Log Files]
+    B --&gt; C[Parse Filenames]
+    C --&gt; D[Apply Exclusion Rules]
+    D --&gt; E[Export Included/Excluded Lists]
+    E --&gt; F[Load Included Log Files]
+    F --&gt; G[Parse and Extract Data]
+    G --&gt; H[Insert Data into DuckDB]
+    H --&gt; I[Run SQL Queries]
+    I --&gt; J[Generate Insights]
+    J --&gt; K[End]
+
+    classDef process fill:#f9f,stroke:#333,stroke-width:2px;
+    class A,B,C,D,E,F,G,H,I,J,K process;</code></pre>
+<p>Explanation of the Diagram</p>
+<ol type="1">
+<li>Start: The process begins with the loading of log files.</li>
+<li>Load Log Files: Log files are loaded from a specified directory.</li>
+<li>Parse Filenames: Filenames are parsed to extract metadata such as subject name and experiment type.</li>
+<li>Apply Exclusion Rules: Predefined rules are applied to exclude certain log files.</li>
+<li>Handle Specific Files: Additional criteria are used to include or exclude specific log files.</li>
+<li>Export Included/Excluded Lists: Lists of included and excluded log files are exported for further processing.</li>
+<li>Load Included Log Files: The included log files are loaded for detailed analysis.</li>
+<li>Parse and Extract Data: Relevant data is extracted from each log file and structured for database insertion.</li>
+<li>Insert Data into DuckDB: The parsed data is inserted into a DuckDB database. For CB experiments only, manual corrections are loaded and applied.</li>
+<li>Export Database Tables: The database tables are exported to human-readable formats for review.</li>
+<li>End: The process concludes with the export of database tables.</li>
+</ol>
+<p>This workflow ensures that only relevant and high-quality log files are included in the analysis, and the data is structured and stored in a database for both RPE and CB experiments. The process is designed to be flexible and repeatable for both experiment types, with minor adjustments to account for the differences in data structure. The database queries serve as a foundation for future in-depth analysis, providing a way to verify data integrity and demonstrate typical data retrieval operations.</p>
 </section>
 <section id="code-features" class="level2">
 <h2 class="anchored" data-anchor-id="code-features">Code Features</h2>
-<p>Each of the notebooks uses some (or all) of the following custom classes to assist with the analysis:</p>
+<p>The following (custom) modules are used to assist with the data transformations and analysis:</p>
+<ul>
+<li>Logfiles Module: Handles the loading, parsing, and management of log files.</li>
+<li>Project Module: Manages project configuration, directory setup, and database initialization.</li>
+<li>Subject Module: Loads and processes subject information from external files, providing crucial data for both RPE and CB experiments.</li>
+<li>Utils Module: Provides utility functions for displaying class definitions.</li>
+</ul>
+<p>The key custom classes to assist with the analysis are:</p>
 <section id="project-class" class="level3">
 <h3 class="anchored" data-anchor-id="project-class">Project Class</h3>
-<p>The Project class is like a central organiser for your research project. It helps you keep everything tidy and in the right place. Here’s what it does:</p>
+<p>The Project class (<code>project.py</code>) is like a central organiser for your research project. It helps you keep everything tidy and in the right place. Here’s what it does:</p>
 <ol type="1">
 <li>Sets up your project’s structure: It creates folders for your data, results, and other important files.</li>
 <li>Manages your database: It sets up and maintains a database (by experiment type i.e.&nbsp;RPE or CB) where you can store all your experimental data.</li>
@@ -186,7 +262,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="subject-class" class="level3">
 <h3 class="anchored" data-anchor-id="subject-class">Subject Class</h3>
-<p>The Subject class represents an individual participant in your experiment - in this case, a horse. It’s like a digital profile for each horse in your study. Here’s what it does:</p>
+<p>The Subject class (<code>subject.py</code>) represents an individual participant in your experiment - in this case, a horse. It’s like a digital profile for each horse in your study. Here’s what it does:</p>
 <ol type="1">
 <li>Stores information about the horse: It keeps track of details like the horse’s name, cohort, and any other relevant characteristics.</li>
 <li>Manages experimental data: It helps you organise and access the data collected for each horse during the experiments.</li>
@@ -197,6 +273,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="logfile-classes" class="level3">
 <h3 class="anchored" data-anchor-id="logfile-classes">Logfile Classes</h3>
+<p>These are both located in <code>logfiles.py</code>.</p>
 <ol type="1">
 <li>Logfile Class: This is like a digital version of a physical log file. It can:</li>
 </ol>
@@ -216,6 +293,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="experimental-classes" class="level3">
 <h3 class="anchored" data-anchor-id="experimental-classes">Experimental Classes</h3>
+<p>These are also located in <code>logfiles.py</code>.</p>
 <ol type="1">
 <li>Experiment and ExperimentCB Classes: These are like digital record cards for each experiment. They store important information about an experiment, such as:</li>
 </ol>
