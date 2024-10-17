@@ -1,0 +1,11 @@
+ExperimentID,Cohort,SubjectName,SubjectNumber,SessionNumber,SessionType,ExperimentType,Comment,DateTime,LogFileName,Parameters
+40,HD,apollo,9,5,test,Training randomised Type 1,Positive = LEFT,2023-10-09 17:45:46.540359,Experiment_2023-10-09T17:45:46.540359_apollo_5_Training randomised Type 1.log,"{""CRITERION_TIMEOUT_TRAINING"": 20, ""FEED_DISPENSE"": 20, ""FIRST_TRIAL_DURATION"": 4, ""INITIAL_DELAY"": 10, ""MAX_TIME_START_TO_TOUCH_EVENT"": 300, ""MAX_TRIAL_PER_SESSION"": 20, ""MODE"": ""test"", ""NEGATIVE_RESPONSE_TIMEOUT"": 60, ""N_SUBJECT"": 20, ""N_TOUCH"": 3, ""PAUSE_BETWEEN_TRIALS"": 5, ""POSITIVE_RESPONSE_TIMEOUT"": 60, ""SENSITIVITY"": 5, ""SERVO_CHANNEL"": 1, ""SERVO_CLOSE"": 0, ""SERVO_DELAY"": 0.7, ""SERVO_DELAY_AFTER_FEED"": 3, ""SERVO_MODE"": ""pellets"", ""SERVO_OPEN"": 180, ""SESSION_STARTED_SOUND_DURATION"": 2, ""SESSION_TERMINATED_SOUND_DURATION"": 2, ""SYSTEM_READY_SOUND_DURATION"": 2, ""TEST_TIMEOUT"": 60, ""TOUCH_PAD_DELAY"": 0.1, ""TRIAL_LIMIT"": 20, ""TRIAL_SLEEP_TIME"": 5, ""TRIAL_SOUND_DURATION"": 1}"
+
+
+/* Purpose:
+Retrieve experiment details for a specific log file
+*/
+
+/* SQL Query:
+Experiment_2023-10-09T17:45:46.540359_apollo_5_Training randomised TYPE 1.log
+*/

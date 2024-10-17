@@ -1,0 +1,49 @@
+EventID,TrialID,EventType,EventTime,ElapsedTime
+1520,780,GO for Trial 1 - P - positive - response time 9.151622 - positive criterion count 1,2023-10-09 17:50:26.919705,22.784374
+1521,780,Green button pressed - horse released,2023-10-09 17:52:29.968279,145.832948
+1522,781,NOGO for Trial 2 - N - negative - negative criterion count 1,2023-10-09 17:53:29.968300,205.832969
+1523,781,Green button pressed - horse released,2023-10-09 17:54:09.722465,245.587134
+1524,782,GO for Trial 3 - P - positive - response time 11.543718 - positive criterion count 2,2023-10-09 17:54:21.266292,257.130961
+1525,782,Green button pressed - horse released,2023-10-09 17:55:48.518037,344.382706
+1526,783,GO for Trial 4 - N - negative - response time 11.528231,2023-10-09 17:56:00.046265,355.910934
+1527,783,Green button pressed - horse released,2023-10-09 17:56:19.116396,374.981065
+1528,784,NOGO for Trial 5 - N - negative - negative criterion count 2,2023-10-09 17:57:19.116385,434.981054
+1529,784,Green button pressed - horse released,2023-10-09 17:57:45.320918,461.185587
+1530,785,GO for Trial 6 - P - positive - response time 9.848299 - positive criterion count 3,2023-10-09 17:57:55.169267,471.033936
+1531,785,Green button pressed - horse released,2023-10-09 17:59:31.704638,567.569307
+1532,786,GO for Trial 7 - N - negative - response time 21.996519,2023-10-09 17:59:53.701160,589.565829
+1533,786,Green button pressed - horse released,2023-10-09 18:00:38.920273,634.784942
+1534,787,GO for Trial 8 - P - positive - response time 11.117833 - positive criterion count 4,2023-10-09 18:00:50.038745,645.903414
+1535,787,Green button pressed - horse released,2023-10-09 18:02:25.080445,740.945114
+1536,788,GO for Trial 9 - P - positive - response time 10.262957 - positive criterion count 5,2023-10-09 18:02:35.342735,751.207404
+1537,788,Green button pressed - horse released,2023-10-09 18:03:28.534260,804.398929
+1538,789,NOGO for Trial 10 - N - negative - negative criterion count 3,2023-10-09 18:04:28.534258,864.398927
+1539,789,Green button pressed - horse released,2023-10-09 18:04:59.035480,894.900149
+1540,790,GO for Trial 11 - P - positive - response time 12.766254 - positive criterion count 6,2023-10-09 18:05:11.801773,907.666442
+1541,790,Green button pressed - horse released,2023-10-09 18:07:02.642547,1018.507216
+1542,791,NOGO for Trial 12 - N - negative - negative criterion count 4,2023-10-09 18:08:02.642448,1078.507117
+1543,791,Green button pressed - horse released,2023-10-09 18:08:25.615940,1101.480609
+1544,792,GO for Trial 13 - N - negative - response time 19.630359,2023-10-09 18:08:45.246303,1121.110972
+1545,792,Green button pressed - horse released,2023-10-09 18:09:18.531072,1154.395741
+1546,793,GO for Trial 14 - P - positive - response time 11.391896 - positive criterion count 7,2023-10-09 18:09:29.922994,1165.787663
+1547,793,Green button pressed - horse released,2023-10-09 18:11:17.276917,1273.141586
+1548,794,NOGO for Trial 15 - N - negative - negative criterion count 5,2023-10-09 18:12:17.276907,1333.141576
+1549,794,Green button pressed - horse released,2023-10-09 18:12:51.918371,1367.78304
+1550,795,GO for Trial 16 - P - positive - response time 11.423845 - positive criterion count 8,2023-10-09 18:13:03.342167,1379.206836
+1551,795,Green button pressed - horse released,2023-10-09 18:14:42.986387,1478.851056
+1552,796,GO for Trial 17 - P - positive - response time 10.391335 - positive criterion count 9,2023-10-09 18:14:53.377774,1489.242443
+1553,796,Green button pressed - horse released,2023-10-09 18:16:17.926250,1573.790919
+1554,797,NOGO for Trial 18 - N - negative - negative criterion count 6,2023-10-09 18:17:17.925594,1633.790263
+1555,797,Green button pressed - horse released,2023-10-09 18:17:51.391368,1667.256037
+1556,798,GO for Trial 19 - P - positive - response time 10.046309 - positive criterion count 10,2023-10-09 18:18:01.437739,1677.302408
+1557,798,Green button pressed - horse released,2023-10-09 18:19:42.720723,1778.585392
+1558,799,NOGO for Trial 20 - N - negative - negative criterion count 7,2023-10-09 18:20:42.720777,1838.585446
+
+
+/* Purpose:
+Retrieve event details for a specific log file
+*/
+
+/* SQL Query:
+Experiment_2023-10-09T17:45:46.540359_apollo_5_Training randomised TYPE 1.log
+*/
