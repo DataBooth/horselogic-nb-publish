@@ -1,0 +1,62 @@
+0,2023-10-07,CBF2,Atom,2.0,P,10.6,GO,,Late button press for GO,Experiment_2023-10-07T10:47:41.820683_atom_3_Training - fixed.log
+1,2023-10-07,CBF2,Atom,6.0,P,8.21,GO,,Late button press for GO,Experiment_2023-10-07T10:47:41.820683_atom_3_Training - fixed.log
+2,2023-10-07,CBF2,Atom,11.0,N,30.0,NOGO,,"NoGo response criterion, not Go response",Experiment_2023-10-07T10:47:41.820683_atom_3_Training - fixed.log
+3,2023-10-07,CBF2,Teddy,19.0,N,30.0,NOGO,,Go response triggered but NoGo,Experiment_2023-10-07T13:42:36.274776_teddy_2_Training - fixed.log
+4,2023-10-07,CBF2,Dodge,1.0,P,8.95,GO,,Late button press for GO,Experiment_2023-10-07T14:30:16.073357_dodge_2_Training - fixed.log
+5,2023-10-07,CBF2,Dodge,8.0,P,7.62,GO,,Slow horse release,Experiment_2023-10-07T14:30:16.073357_dodge_2_Training - fixed.log
+6,2023-10-07,CBF2,Bonnie,5.0,P,9.21,GO,,NoGo response when should be Go response time,Experiment_2023-10-07T16:55:59.174334_bonnie_55_Training - fixed.log
+7,2023-10-07,CBF2,Molly,4.0,P,10.09,GO,,NoGo response when should be Go response- 18:21:51- criterion response,Experiment_2023-10-07T18:06:05.305535_molly_3_Training - fixed.log
+8,2023-10-07,CBF2,Molly,5.0,P,12.45,GO,,NoGo response when should be Go response- criterion response,Experiment_2023-10-07T18:06:05.305535_molly_3_Training - fixed.log
+9,2023-10-07,CBF2,Molly,8.0,P,9.29,GO,,Late button press for GO- criterion,Experiment_2023-10-07T18:06:05.305535_molly_3_Training - fixed.log
+10,2023-10-08,CBR1,Atom,11.0,P,9.87,GO,,Late button press for GO,Experiment_2023-10-08T10:29:55.247254_atom_5_Training randomised Type 1.log
+11,2023-10-08,CBR1,Atom,17.0,P,8.22,GO,,Late button press for GO,Experiment_2023-10-08T10:29:55.247254_atom_5_Training randomised Type 1.log
+12,2023-10-08,CBF3,Ash,1.0,P,7.43,GO,,Late button press for GO - 60s timeout,Experiment_2023-10-08T11:03:05.275380_ash_4_Training - fixed.log
+13,2023-10-08,CBF3,Ash,8.0,P,6.56,GO,,Horse released late,Experiment_2023-10-08T11:03:05.275380_ash_4_Training - fixed.log
+14,2023-10-08,CBF3,Ash,15.0,N,48.49,GO,Change to NOGO,Horse released late,Experiment_2023-10-08T11:03:05.275380_ash_4_Training - fixed.log
+15,2023-10-08,CBF3,Mowgli,6.0,P,9.43,GO,,Late button press for GO,Experiment_2023-10-08T11:48:24.989885_mowgli_3_Training - fixed.log
+16,2023-10-08,CBF3,Mowgli,9.0,P,9.08,GO,,Horse released late,Experiment_2023-10-08T11:48:24.989885_mowgli_3_Training - fixed.log
+17,2023-10-08,CBF3,Mowgli,10.0,P,7.95,GO,,Horse released late,Experiment_2023-10-08T11:48:24.989885_mowgli_3_Training - fixed.log
+18,2023-10-08,CBF3,Teddy,4.0,P,6.45,GO,,Late button press for GO,Experiment_2023-10-08T12:20:50.954677_teddy_3_Training - fixed.log
+19,2023-10-08,CBF3,Teddy,8.0,P,7.11,GO,,Late button press for GO,Experiment_2023-10-08T12:20:50.954677_teddy_3_Training - fixed.log
+20,2023-10-08,CBF3,Teddy,9.0,P,6.24,GO,,Late button press for GO,Experiment_2023-10-08T12:20:50.954677_teddy_3_Training - fixed.log
+21,2023-10-08,CBR1,Filly,9.0,P,8.55,GO,,Late button press for GO,Experiment_2023-10-08T13:50:54.095550_filly_6_Training randomised Type 1.log
+22,2023-10-08,CBR1,Filly,11.0,P,7.95,GO,,Late button press for GO,Experiment_2023-10-08T13:50:54.095550_filly_6_Training randomised Type 1.log
+23,2023-10-08,CBF3,Bonnie,5.0,P,8.09,GO,,Late button press for GO,Experiment_2023-10-08T16:09:32.654028_bonnie_56_Training - fixed.log
+24,2023-10-08,CBF3,Bonnie,9.0,P,8.69,GO,,Late button press for GO,Experiment_2023-10-08T16:09:32.654028_bonnie_56_Training - fixed.log
+25,2023-10-08,CBF3,Bonnie,11.0,N,12.88,GO,,Early horse release before button not pressed,Experiment_2023-10-08T16:09:32.654028_bonnie_56_Training - fixed.log
+26,2023-10-08,CBR1,Molly,2.0,N,30.0,NOGO,,Horse released late,Experiment_2023-10-08T17:40:21.611860_molly_4_Training randomised Type 1.log
+27,2023-10-09,CBR2,Ash,13.0,N,21.29,GO,,NoGo response when should be Go response- criterion response,Experiment_2023-10-09T11:42:20.024754_ash_5_Training randomised Type 1.log
+28,2023-10-09,CBR2,Ash,15.0,N,43.14,GO,Change to NOGO,NoGo response when should be Go response,Experiment_2023-10-09T11:42:20.024754_ash_5_Training randomised Type 1.log
+29,2023-10-09,CBR2,Dougie,1.0,P,10.68,GO,,Mess,Experiment_2023-10-09T15:25:36.471599_dougie_7_Training randomised Type 2.log
+30,2023-10-09,CBR2,Dougie,2.0,P,9.26,GO,,Mess,Experiment_2023-10-09T15:25:36.471599_dougie_7_Training randomised Type 2.log
+31,2023-10-09,CBR2,Dougie,3.0,N,30.0,NOGO,,Mess,Experiment_2023-10-09T15:25:36.471599_dougie_7_Training randomised Type 2.log
+32,2023-10-09,CBR2,Dougie,4.0,P,10.62,GO,,Mess,Experiment_2023-10-09T15:25:36.471599_dougie_7_Training randomised Type 2.log
+33,2023-10-09,CBR2,Dougie,16.0,P,12.54,GO,,Check!,Experiment_2023-10-09T15:25:36.471599_dougie_7_Training randomised Type 2.log
+34,2023-10-09,CBR1,Bonnie,1.0,P,10.23,GO,,Early horse release before button not pressed,Experiment_2023-10-09T17:04:07.650916_bonnie_63_Training randomised Type 1.log
+35,2023-10-09,CBR1,Bonnie,2.0,N,30.0,NOGO,,"NoGo response criterion, not Go response",Experiment_2023-10-09T17:04:07.650916_bonnie_63_Training randomised Type 1.log
+36,2023-10-09,CBR1,Bonnie,8.0,P,,GO,,Positive bucket in wrong spot- criterion response,Experiment_2023-10-09T17:04:07.650916_bonnie_63_Training randomised Type 1.log
+37,2023-10-10,CBT1,Ash,15.0,N,24.74,GO,,Was it a Go or NoGo- NoGo on log,Experiment_2023-10-10T11:11:42.463329_ash_6_Test Type 1.log
+38,2023-10-10,CBT1,Teddy,6.0,,9.49,GO,,Late button press for GO?,Experiment_2023-10-10T12:20:12.178833_teddy_5_Test Type 1.log
+39,2023-10-10,CBT1,Dougie,,M,11.81,GO,,Blue button not working-16:05:45,Experiment_2023-10-10T16:00:54.429454_dougie_8_Test Type 1.log
+40,2023-10-11,CBT1,Atom,2.0,N,30.0,NOGO,,Horse released late,Experiment_2023-10-11T10:26:14.965471_atom_8_Test Type 1.log
+41,2023-10-11,CBT1,Atom,7.0,NP,9.87,GO,,Trial not timed,Experiment_2023-10-11T10:26:14.965471_atom_8_Test Type 1.log
+42,2023-10-11,CBT1,Atom,13.0,NN,12.08,GO,,,Experiment_2023-10-11T10:26:14.965471_atom_8_Test Type 1.log
+43,2023-10-11,CBR1,Molly,3.0,P,7.96,GO,,Late button press for GO,Experiment_2023-10-11T09:46:53.960298_molly_8_Test Type 1.log
+44,2023-10-11,CBR1,Molly,19.0,,11.08,GO,,Early horse release before button not pressed,Experiment_2023-10-11T09:46:53.960298_molly_8_Test Type 1.log
+45,2023-10-11,CBT1,Atom,8.0,NP,8.76,GO,,Late button press for GO?,Experiment_2023-10-11T10:26:14.965471_atom_8_Test Type 1.log
+46,2023-10-17,CBT2,Apollo,4.0,P,10.48,GO,,NoGo response when should be Go response,Experiment_2023-10-17T11:03:37.586522_apollo_8_Test Type 2.log
+47,2023-10-17,CBT2,Apollo,7.0,NP,30.0,NOGO,,Check NoGo to NP ,Experiment_2023-10-17T11:03:37.586522_apollo_8_Test Type 2.log
+48,2023-10-17,CBT2,Apollo,14.0,P,7.89,GO,,Check!,Experiment_2023-10-17T11:03:37.586522_apollo_8_Test Type 2.log
+49,2023-10-17,CBT2,Teddy,1.0,P,7.36,GO,,Early horse release before button not pressed,Experiment_2023-10-17T12:35:26.511897_teddy_6_Test Type 2.log
+50,2023-10-17,CBT2,Bonnie,2.0,N,30.0,GO,,Check time- just timed out on Nogo to N bucket,Experiment_2023-10-17T14:37:07.416285_bonnie_77_Test Type 2.log
+51,2023-10-17,CBT2,Bonnie,10.0,P,7.84,GO,,NoGo response when should be Go response,Experiment_2023-10-17T14:37:07.416285_bonnie_77_Test Type 2.log
+52,2023-10-17,CBT2,Bonnie,11.0,P,7.65,GO,,Horse released late,Experiment_2023-10-17T14:37:07.416285_bonnie_77_Test Type 2.log
+53,2023-10-20,CBT3,Ash,8.0,N,30.0,NOGO,,Check video- horse checked Neg bucket at 30s?,Experiment_2023-10-20T11:05:31.583763_ash_9_Test Type 3.log
+54,2023-10-20,CBt3,Dougie,13.0,P,11.59,GO,,NoGo response when should be Go response,Experiment_2023-10-20T15:32:07.559818_dougie_10_Test Type 3.log
+55,2023-10-21,CBT4,Ash,13.0,N,30.0,NOGO,,Horse released late,
+56,2023-10-21,CBT4,Mowgli,8.0,P,7.24,GO,,Late button press for GO,Experiment_2023-10-21T11:03:39.830387_mowgli_8_Test Type 1.log
+57,2023-10-21,CBT3,Dodge,3.0,P,7.97,GO,,Late button press for GO,Experiment_2023-10-21T13:11:05.817830_dodge_7_Test Type 3.log
+58,2023-10-21,CBT3,Dodge,13.0,P,8.48,GO,,Late button press for GO,Experiment_2023-10-21T13:11:05.817830_dodge_7_Test Type 3.log
+59,2023-10-21,CBT3,Apollo,1.0,P,7.7,GO,,Horse released late,Experiment_2023-10-21T16:51:13.820180_apollo_9_Test Type 3.log
+60,2023-10-22,CBT4,Dodge,2.0,N,20.3,GO,,Go button late,Experiment_2023-10-22T10:49:33.650259_dodge_8_Test Type 1.log
+61,2023-10-22,CBT4,Bonnie,5.0,P,7.1,GO,,Go button late,Experiment_2023-10-22T11:36:41.453331_bonnie_79_Test Type 1.log
