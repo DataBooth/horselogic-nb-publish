@@ -1,0 +1,39 @@
+ExperimentID,TrialID,EventID,EventTime,EventType
+84,1456,2828,2023-10-22 12:35:27.092594,GO for Trial 1 - P - positive - response time 8.212826 - positive criterion count 1
+84,1456,2829,2023-10-22 12:36:38.469121,Green button pressed - horse released
+84,1457,2830,2023-10-22 12:37:08.469104,NOGO for Trial 2 - N - negative - negative criterion count 1
+84,1457,2831,2023-10-22 12:37:31.591232,Green button pressed - horse released
+84,1458,2832,2023-10-22 12:37:41.865534,GO for Trial 3 - M - median
+84,1458,2833,2023-10-22 12:38:08.135470,Green button pressed - horse released
+84,1459,2834,2023-10-22 12:38:19.367658,GO for Trial 4 - N - negative - response time 11.232146
+84,1459,2835,2023-10-22 12:38:39.828845,Green button pressed - horse released
+84,1460,2836,2023-10-22 12:38:49.195317,GO for Trial 5 - P - positive - response time 9.366344 - positive criterion count 2
+84,1460,2837,2023-10-22 12:39:46.940326,Green button pressed - horse released
+84,1461,2838,2023-10-22 12:39:55.864674,GO for Trial 6 - P - positive - response time 8.924317 - positive criterion count 3
+84,1461,2839,2023-10-22 12:41:30.654673,Green button pressed - horse released
+84,1462,2840,2023-10-22 12:42:00.655454,NOGO for Trial 7 - N - negative - negative criterion count 2
+84,1462,2841,2023-10-22 12:42:32.825372,Green button pressed - horse released
+84,1463,2842,2023-10-22 12:42:41.139007,GO for Trial 8 - NP - near positive
+84,1463,2843,2023-10-22 12:43:06.403118,Green button pressed - horse released
+84,1464,2844,2023-10-22 12:43:15.052695,GO for Trial 9 - P - positive - response time 8.649548 - positive criterion count 4
+84,1464,2845,2023-10-22 12:44:19.384874,Green button pressed - horse released
+84,1465,2846,2023-10-22 12:44:33.059187,GO for Trial 10 - N - negative - response time 13.674266
+84,1465,2847,2023-10-22 12:44:48.622427,Green button pressed - horse released
+84,1466,2848,2023-10-22 12:45:18.622432,NOGO for Trial 11 - N - negative - negative criterion count 3
+84,1466,2849,2023-10-22 12:45:43.060846,Green button pressed - horse released
+84,1467,2850,2023-10-22 12:45:52.188859,GO for Trial 12 - P - positive - response time 9.127888 - positive criterion count 5
+84,1467,2851,2023-10-22 12:47:14.116034,Green button pressed - horse released
+84,1468,2852,2023-10-22 12:47:24.434896,GO for Trial 13 - NN - near negative
+84,1468,2853,2023-10-22 12:48:37.477658,Green button pressed - horse released
+84,1469,2854,2023-10-22 12:48:47.062104,GO for Trial 14 - P - positive - response time 9.584459 - positive criterion count 6
+84,1469,2855,2023-10-22 12:50:14.504576,Green button pressed - horse released
+84,1470,2856,2023-10-22 12:50:29.638010,GO for Trial 15 - N - negative - response time 15.132832
+
+
+/* Purpose:
+Retrieve event details for a specific log file
+*/
+
+/* SQL Query:
+Experiment_2023-10-22T12:32:10.229170_apollo_10_Test TYPE 1.log
+*/
