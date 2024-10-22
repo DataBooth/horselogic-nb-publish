@@ -1,0 +1,11 @@
+ExperimentID,Cohort,SubjectName,SubjectNumber,SessionNumber,SessionType,ExperimentType,Direction,Comment,DateTime,LogFileName
+180,CSU,yoshi,15,11,test,Test Type 1,LEFT,CB T 4 after RP R,2023-11-17 03:22:54.109367,Experiment_2023-11-17T03:22:54.109367_yoshi_11.0_Test Type 1.log
+
+
+/* Purpose:
+Retrieve experiment details for a specific log file
+*/
+
+/* SQL Query:
+Experiment_2023-11-17T03:22:54.109367_yoshi_11.0_Test TYPE 1.log
+*/

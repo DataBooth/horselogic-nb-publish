@@ -1,0 +1,12 @@
+ExperimentID,Cohort,SubjectName,SubjectNumber,SessionNumber,SessionType,ExperimentType,Direction,Comment,DateTime,LogFileName
+
+
+/* Purpose:
+Retrieves all Experiments where the comment doesn't contain LEFT or RIGHT
+*/
+
+/* SQL Query:
+SELECT * EXCLUDE PARAMETERS
+FROM ExperimentCBs
+WHERE Direction IS NULL
+*/
