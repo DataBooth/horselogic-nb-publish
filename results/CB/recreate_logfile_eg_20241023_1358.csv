@@ -1,0 +1,73 @@
+Experiment_2023_10_06T124944174442_atom_2_Training___fixed
+2023-10-06 12:50:36.543201: GO for Trial 1 - P - positive - response time 17.670339 - positive criterion count 1 - response time 17.670339
+2023-10-06 12:51:42.291332: Green button pressed - horse released
+2023-10-06 12:51:53.268573: GO for Trial 2 - P - positive - response time 10.97722 - positive criterion count 2 - response time 10.97722
+2023-10-06 12:52:51.630356: Green button pressed - horse released
+2023-10-06 12:53:01.531667: GO for Trial 3 - P - positive - response time 9.901265 - positive criterion count 3 - response time 9.901265
+2023-10-06 12:54:26.634533: Green button pressed - horse released
+2023-10-06 12:54:37.725440: GO for Trial 4 - P - positive - response time 11.090858 - positive criterion count 4 - response time 11.090858
+2023-10-06 12:55:24.875527: Green button pressed - horse released
+2023-10-06 12:55:33.610711: GO for Trial 5 - P - positive - response time 8.735194 - positive criterion count 5 - response time 8.735194
+2023-10-06 12:56:12.517965: Green button pressed - horse released
+2023-10-06 12:56:22.610633: GO for Trial 6 - P - positive - response time 10.093112 - positive criterion count 6 - response time 10.093112
+2023-10-06 12:56:48.216922: Green button pressed - horse released
+2023-10-06 12:57:35.760606: GO for Trial 7 - P - positive - response time 47.543691 - response time 47.543691
+2023-10-06 12:58:31.699808: Green button pressed - horse released
+2023-10-06 12:58:39.385306: GO for Trial 8 - P - positive - response time 7.686065 - positive criterion count 7 - response time 7.686065
+2023-10-06 12:59:08.053932: Green button pressed - horse released
+2023-10-06 12:59:17.085578: GO for Trial 9 - P - positive - response time 9.031617 - positive criterion count 8 - response time 9.031617
+2023-10-06 12:59:46.129396: Green button pressed - horse released
+2023-10-06 12:59:56.947294: GO for Trial 10 - P - positive - response time 10.817912 - positive criterion count 9 - response time 10.817912
+2023-10-06 13:00:32.579564: Green button pressed - horse released
+2023-10-06 13:00:51.172825: GO for Trial 11 - N - negative - response time 18.593252 - response time 18.593252
+2023-10-06 13:01:20.989600: Green button pressed - horse released
+2023-10-06 13:01:30.495559: GO for Trial 12 - N - negative - response time 9.505987 - response time 9.505987
+2023-10-06 13:01:50.179606: Green button pressed - horse released
+2023-10-06 13:02:23.942294: GO for Trial 13 - N - negative - response time 33.762633 - response time 33.762633
+2023-10-06 13:02:43.702448: Green button pressed - horse released
+2023-10-06 13:03:09.516276: GO for Trial 14 - N - negative - response time 25.813766 - response time 25.813766
+2023-10-06 13:03:28.896875: Green button pressed - horse released
+2023-10-06 13:04:28.896964: NOGO for Trial 15 - N - negative - negative criterion count 1
+2023-10-06 13:04:47.236090: Green button pressed - horse released
+2023-10-06 13:05:47.236139: NOGO for Trial 16 - N - negative - negative criterion count 2
+2023-10-06 13:06:05.555654: Green button pressed - horse released
+2023-10-06 13:07:05.555701: NOGO for Trial 17 - N - negative - negative criterion count 3
+2023-10-06 13:07:31.725137: Green button pressed - horse released
+2023-10-06 13:08:31.725067: NOGO for Trial 18 - N - negative - negative criterion count 4
+2023-10-06 13:08:54.660715: Green button pressed - horse released
+2023-10-06 13:09:54.660676: NOGO for Trial 19 - N - negative - negative criterion count 5
+
+
+/* Purpose:
+Recreate Experiment_2023-10-06T12:49:44.174442_atom_2_Training - fixed.log
+*/
+
+/* SQL Query:
+WITH log_events AS
+  (SELECT e.EventTime,
+          e.EventType,
+          t.TrialNumber,
+          t.ResponseType,
+          t.TrialSubType,
+          r.ResponseTime
+   FROM EventCBs e
+   LEFT JOIN TrialCBs t ON e.TrialID = t.TrialID
+   LEFT JOIN ResponseCBs r ON e.TrialID = r.TrialID
+   JOIN ExperimentCBs ex ON t.ExperimentID = ex.ExperimentID
+   WHERE ex.LogFileName = 'Experiment_2023-10-06T12:49:44.174442_atom_2_Training
+- fixed.log'
+   ORDER BY e.EventTime)
+SELECT strftime('%Y-%m-%d %H:%M:%S.%f', EventTime) || ': ' || CASE
+                                                                  WHEN EventType
+LIKE 'GO for Trial%'
+                                                                       OR
+EventType LIKE 'NOGO for Trial%' THEN EventType || CASE
+                                                 WHEN ResponseTime IS NOT NULL
+THEN ' - response time ' || CAST(ResponseTime AS TEXT)
+                                                 ELSE ''
+                                             END
+                                                                  ELSE EventType
+                                                              END AS
+Experiment_2023_10_06T124944174442_atom_2_Training___fixed
+FROM log_events;
+*/

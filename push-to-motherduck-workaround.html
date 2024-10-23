@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Cathrynne Henshall">
+<meta name="author" content="Michael J. Booth">
 
-<title>RPE and CB data analysis notebooks</title>
+<title>Push CB database to MotherDuck (workaround)</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,18 +22,50 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="site_libs/quarto-nav/headroom.min.js"></script>
 <script src="site_libs/clipboard/clipboard.min.js"></script>
 <script src="site_libs/quarto-search/autocomplete.umd.js"></script>
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -68,72 +102,18 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
 
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+<script src="https://unpkg.com/@jupyter-widgets/html-manager@*/dist/embed-amd.js" crossorigin="anonymous"></script>
 
-    const options = {
-      valueNames: ['listing-title','listing-date','listing-author','listing-description','listing-filename',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author","listing-subtitle","listing-image","listing-description","listing-categories"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
-
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 </head>
 
 <body class="nav-sidebar docked nav-fixed">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top">
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
             <div id="quarto-search" class="" title="Search"></div>
@@ -143,7 +123,7 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" aria-current="page"> 
+    <a class="nav-link" href="./index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
@@ -161,7 +141,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">RPE and CB data analysis notebooks</li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Push CB database to MotherDuck (workaround)</li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -171,7 +151,61 @@ window.Quarto = {
   </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Push CB database to MotherDuck (workaround)</h1>
+            <p class="subtitle lead">Experimental data analysis (Oct / Nov 2023)</p>
+                      </div>
+  </div>
+    
+  <div class="quarto-title-meta-author">
+    <div class="quarto-title-meta-heading">Authors</div>
+    <div class="quarto-title-meta-heading">Affiliations</div>
+    
+      <div class="quarto-title-meta-contents">
+      <p class="author">Cathrynne Henshall <a href="mailto:ponies@hillydale.com.au" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> </p>
+    </div>
+    <div class="quarto-title-meta-contents">
+          <p class="affiliation">
+              <a href="www.csu.edu.au">
+              Charles Sturt University
+              </a>
+            </p>
+        </div>
+      <div class="quarto-title-meta-contents">
+      <p class="author">Michael J. Booth <a href="mailto:michael@databooth.com.au" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> </p>
+    </div>
+    <div class="quarto-title-meta-contents">
+          <p class="affiliation">
+              <a href="www.databooth.com.au">
+              DataBooth
+              </a>
+            </p>
+        </div>
+    </div>
+
+  <div class="quarto-title-meta">
+
+        
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">Wed Oct 23, 2024 1:59 PM</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  <div>
+    <div class="abstract">
+      <div class="block-title">Abstract</div>
+      <p>Copy of the DuckDB database to MotherDuck.</p>
+    </div>
+  </div>
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
         <div class="mt-2 flex-shrink-0 align-items-center">
@@ -182,285 +216,72 @@ window.Quarto = {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
         
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(9)</span></div></div></div>
+    </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
-
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">RPE and CB data analysis notebooks</h1>
-</div>
-
-
-
-<div class="quarto-title-meta">
-
-    
-  
-    
-  </div>
-  
-
-
-</header>
-
-
-<p>These are the notebooks that perform (for both Reward Prediction Error (RPE) and Cognitive Bias (CB) experiments):</p>
-<ol type="1">
-<li>A reconciliation of the the log files whose data will be loaded into the databases.</li>
-<li>The parsing of the log files into the respective databases (one for RPE and one for CB^ data)</li>
-<li>Sample queries for using the data in both DuckDB databases.</li>
-<li>Allowing for manual corrections to the CB data (in progress).</li>
-</ol>
-<p>^<em>This is a work in progress for the CB data.</em></p>
-<hr>
+<main class="content quarto-banner-title-block" id="quarto-document-content">
 
 
 
 
-<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
-<div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-listing-date-sort="1729652365000" data-listing-file-modified-sort="1729568141805" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="3" data-listing-word-count-sort="475">
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./logfile-reconciliation-RPE.html" class="no-external">Logfile Reconciliation - Reward Prediction Error (RPE)</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./logfile-reconciliation-RPE.html" class="no-external">Experimental data analysis (Oct / Nov 2023)</a>
-</div>
-<div class="listing-description">
-<a href="./logfile-reconciliation-RPE.html" class="no-external">Reconciliation of the logfiles generated during the experiments to determine which log files to load to the database. </a>
-</div>
-</div>
-<div class="metadata">
-<a href="./logfile-reconciliation-RPE.html" class="no-external">
-<div class="listing-date">
-Oct 23, 2024
-</div>
-<div class="listing-author">
-Cathrynne Henshall, Michael J. Booth
-</div>
-<div class="metadata-value listing-filename">
-logfile-reconciliation-RPE.ipynb
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="1" data-listing-date-sort="1729652365000" data-listing-file-modified-sort="1729568171946" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="317">
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./logfile-to-database-RPE.html" class="no-external">Logfiles to RPE database</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./logfile-to-database-RPE.html" class="no-external">Experimental data analysis (Oct / Nov 2023)</a>
-</div>
-<div class="listing-description">
-<a href="./logfile-to-database-RPE.html" class="no-external">Parsing of the RPE logfiles into DuckDB database for analysis. </a>
-</div>
-</div>
-<div class="metadata">
-<a href="./logfile-to-database-RPE.html" class="no-external">
-<div class="listing-date">
-Oct 23, 2024
-</div>
-<div class="listing-author">
-Cathrynne Henshall, Michael J. Booth
-</div>
-<div class="metadata-value listing-filename">
-logfile-to-database-RPE.ipynb
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="2" data-listing-date-sort="1729652365000" data-listing-file-modified-sort="1729568134837" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="126">
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./database-queries-RPE.html" class="no-external">RPE Database Example Queries</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./database-queries-RPE.html" class="no-external">Experimental data analysis (Oct / Nov 2023)</a>
-</div>
-<div class="listing-description">
-<a href="./database-queries-RPE.html" class="no-external">Querying the data from the database </a>
-</div>
-</div>
-<div class="metadata">
-<a href="./database-queries-RPE.html" class="no-external">
-<div class="listing-date">
-Oct 23, 2024
-</div>
-<div class="listing-author">
-Cathrynne Henshall, Michael J. Booth
-</div>
-<div class="metadata-value listing-filename">
-database-queries-RPE.ipynb
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="3" data-listing-date-sort="1729652365000" data-listing-file-modified-sort="1729652330712" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="358">
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./logfile-reconciliation-CB.html" class="no-external">Logfile Reconciliation - Cognitive Bias (CB)</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./logfile-reconciliation-CB.html" class="no-external">Experimental data analysis (Oct / Nov 2023)</a>
-</div>
-<div class="listing-description">
-<a href="./logfile-reconciliation-CB.html" class="no-external">Reconciliation of the CB logfiles generated during the experiments. </a>
-</div>
-</div>
-<div class="metadata">
-<a href="./logfile-reconciliation-CB.html" class="no-external">
-<div class="listing-date">
-Oct 23, 2024
-</div>
-<div class="listing-author">
-Cathrynne Henshall, Michael J. Booth
-</div>
-<div class="metadata-value listing-filename">
-logfile-reconciliation-CB.ipynb
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="4" data-listing-date-sort="1729652365000" data-listing-file-modified-sort="1729652346373" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="154">
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./logfile-to-database-CB.html" class="no-external">Logfiles to CB database</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./logfile-to-database-CB.html" class="no-external">Experimental data analysis (Oct / Nov 2023)</a>
-</div>
-<div class="listing-description">
-<a href="./logfile-to-database-CB.html" class="no-external">Parsing of the logfiles into DuckDB database for analysis. </a>
-</div>
-</div>
-<div class="metadata">
-<a href="./logfile-to-database-CB.html" class="no-external">
-<div class="listing-date">
-Oct 23, 2024
-</div>
-<div class="listing-author">
-Cathrynne Henshall, Michael J. Booth
-</div>
-<div class="metadata-value listing-filename">
-logfile-to-database-CB.ipynb
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="5" data-listing-date-sort="1729652365000" data-listing-file-modified-sort="1729652325458" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="109">
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./database-queries-CB.html" class="no-external">CB Database Example Queries</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./database-queries-CB.html" class="no-external">Experimental data analysis (Oct / Nov 2023)</a>
-</div>
-<div class="listing-description">
-<a href="./database-queries-CB.html" class="no-external">Querying the data from the database </a>
-</div>
-</div>
-<div class="metadata">
-<a href="./database-queries-CB.html" class="no-external">
-<div class="listing-date">
-Oct 23, 2024
-</div>
-<div class="listing-author">
-Cathrynne Henshall, Michael J. Booth
-</div>
-<div class="metadata-value listing-filename">
-database-queries-CB.ipynb
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="6" data-listing-date-sort="1729652365000" data-listing-file-modified-sort="1729219027792" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="86">
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./corrections-to-database-CB.html" class="no-external">Corrections to database - Cognitive Bias (CB)</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./corrections-to-database-CB.html" class="no-external">Experimental data analysis (Oct / Nov 2023)</a>
-</div>
-<div class="listing-description">
-<a href="./corrections-to-database-CB.html" class="no-external">Applying (manual) corrections into CB database prior to analysis. </a>
-</div>
-</div>
-<div class="metadata">
-<a href="./corrections-to-database-CB.html" class="no-external">
-<div class="listing-date">
-Oct 23, 2024
-</div>
-<div class="listing-author">
-Cathrynne Henshall, Michael J. Booth
-</div>
-<div class="metadata-value listing-filename">
-corrections-to-database-CB.ipynb
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="7" data-listing-date-sort="1729652365000" data-listing-file-modified-sort="1729652313276" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="77">
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./CSU-database-queries-CB-deep-dive.html" class="no-external">CSU Deep Dive - CB Database Queries</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./CSU-database-queries-CB-deep-dive.html" class="no-external">Experimental data analysis (Oct / Nov 2023)</a>
-</div>
-<div class="listing-description">
-<a href="./CSU-database-queries-CB-deep-dive.html" class="no-external">Querying the data from the database </a>
-</div>
-</div>
-<div class="metadata">
-<a href="./CSU-database-queries-CB-deep-dive.html" class="no-external">
-<div class="listing-date">
-Oct 23, 2024
-</div>
-<div class="listing-author">
-Cathrynne Henshall, Michael J. Booth
-</div>
-<div class="metadata-value listing-filename">
-CSU-database-queries-CB-deep-dive.ipynb
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="8" data-listing-date-sort="1729652365000" data-listing-file-modified-sort="1729652319791" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="77">
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./HD-database-queries-CB-deep-dive.html" class="no-external">HD Deep Dive - CB Database Queries</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./HD-database-queries-CB-deep-dive.html" class="no-external">Experimental data analysis (Oct / Nov 2023)</a>
-</div>
-<div class="listing-description">
-<a href="./HD-database-queries-CB-deep-dive.html" class="no-external">Querying the data from the database </a>
-</div>
-</div>
-<div class="metadata">
-<a href="./HD-database-queries-CB-deep-dive.html" class="no-external">
-<div class="listing-date">
-Oct 23, 2024
-</div>
-<div class="listing-author">
-Cathrynne Henshall, Michael J. Booth
-</div>
-<div class="metadata-value listing-filename">
-HD-database-queries-CB-deep-dive.ipynb
-</div>
-</a>
-</div>
-</div>
-</div>
-<div class="listing-no-matching d-none">
-No matching items
-</div>
-</div></main> <!-- /main -->
+
+<div id="cell-3" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>SCHEMA <span class="op">=</span> Path(<span class="st">"../sql/create_cb_experiment_tables_ddb.sql"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-4" class="cell" data-execution_count="4">
+<div class="cell-output cell-output-stdout">
+<pre><code>Inferred table order (top-level first): ['ExperimentCBs', 'TrialCBs', 'ResponseCBs', 'EventCBs']</code></pre>
+</div>
+</div>
+<div id="cell-7" class="cell" data-execution_count="7">
+<div class="cell-output cell-output-stdout">
+<pre><code>duckdb.connect(":memory:")
+`motherduck_token` environment variable set...
+ATTACH 'md:';</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<script type="application/vnd.jupyter.widget-view+json">
+{"model_id":"45064097f8014fdcbbc0be5d335b5d83","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+</script>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>ATTACH '../data/Experiments_CB_2023_Q4.ddb' AS local_source_db
+USE 'local_source_db'
+CREATE OR REPLACE DATABASE Experiments_CB_2023_Q4
+COPY FROM DATABASE local_source_db TO Experiments_CB_2023_Q4 (SCHEMA)
+Table order: ['ExperimentCBs', 'TrialCBs', 'ResponseCBs', 'EventCBs']
+INSERT INTO Experiments_CB_2023_Q4.ExperimentCBs SELECT * FROM local_source_db.ExperimentCBs
+INSERT INTO Experiments_CB_2023_Q4.TrialCBs SELECT * FROM local_source_db.TrialCBs
+INSERT INTO Experiments_CB_2023_Q4.ResponseCBs SELECT * FROM local_source_db.ResponseCBs
+INSERT INTO Experiments_CB_2023_Q4.EventCBs SELECT * FROM local_source_db.EventCBs
+
+INFO: Database 'Experiments_CB_2023_Q4' created and populated successfully.</code></pre>
+</div>
+</div>
+<div id="cell-9" class="cell" data-execution_count="9">
+<div class="cell-output cell-output-stdout">
+<pre><code>Comparing - LOCAL: ../data/Experiments_CB_2023_Q4.ddb vs MOTHERDUCK: Experiments_CB_2023_Q4
+
+Comparing table: EventCBs
+
+Comparing table: ExperimentCBs
+
+Comparing table: ResponseCBs
+
+Comparing table: TrialCBs
+
+All tables and data match!
+Databases are identical: True</code></pre>
+</div>
+</div>
+
+
+
+</main> <!-- /main -->
+<script type="application/vnd.jupyter.widget-state+json">
+{"state":{"44302eb6bf4a43cba6523084cf0955ce":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"ProgressStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"ProgressStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","bar_color":"black","description_width":""}},"45064097f8014fdcbbc0be5d335b5d83":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"FloatProgressModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"FloatProgressModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"ProgressView","bar_style":"","description":"","description_allow_html":false,"layout":"IPY_MODEL_6ba648c2aaf9450faf9ec995031c1aa8","max":100,"min":0,"orientation":"horizontal","style":"IPY_MODEL_44302eb6bf4a43cba6523084cf0955ce","tabbable":null,"tooltip":null,"value":100}},"6ba648c2aaf9450faf9ec995031c1aa8":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":"auto"}}},"version_major":2,"version_minor":0}
+</script>
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -550,6 +371,57 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       container: window.document.getElementById('quarto-embedded-source-code-modal')
     });
     clipboardModal.on('success', onCopySuccess);
+  }
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
   }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
