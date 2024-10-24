@@ -34,17 +34,17 @@
 33,Experiment_2023-10-17T14:37:07.416285_bonnie_77_Test Type 2.log,bonnie,Test Type 2,77,2023-10-17 14:37:07.416285,6 days 22:03:34.836017
 34,Experiment_2023-10-21T15:57:40.059715_bonnie_78_Test Type 3.log,bonnie,Test Type 3,78,2023-10-21 15:57:40.059715,4 days 01:20:32.643430
 35,Experiment_2023-10-22T11:36:41.453331_bonnie_79_Test Type 1.log,bonnie,Test Type 1,79,2023-10-22 11:36:41.453331,0 days 19:39:01.393616
-36,Experiment_2023-11-15T00:39:50.244185_clover_nan_Test Type 1.log,clover,Test Type 1,,2023-11-15 00:39:50.244185,23 days 13:03:08.790854
-37,Experiment_2023-11-15T23:18:27.463685_clover_nan_Test Type 2.log,clover,Test Type 2,,2023-11-15 23:18:27.463685,0 days 22:38:37.219500
-38,Experiment_2023-11-13T20:54:16.427672_clover_nan_Training randomised Type 1.log,clover,Training randomised Type 1,,2023-11-13 20:54:16.427672,-3 days +21:35:48.963987
-39,Experiment_2023-11-17T01:23:36.375164_clover_nan_Test Type 3.log,clover,Test Type 3,,2023-11-17 01:23:36.375164,3 days 04:29:19.947492
-40,Experiment_2023-11-13T04:02:49.575872_clover_nan_Training - fixed.log,clover,Training - fixed,,2023-11-13 04:02:49.575872,-4 days +02:39:13.200708
-41,Experiment_2023-11-17T05:22:49.445377_clover_nan_Test Type 1.log,clover,Test Type 1,,2023-11-17 05:22:49.445377,4 days 01:19:59.869505
-42,Experiment_2023-11-13T20:49:33.970464_clover_nan_Training randomised Type 1.log,clover,Training randomised Type 1,,2023-11-13 20:49:33.970464,-4 days +15:26:44.525087
-43,Experiment_2023-11-13T13:01:26.435669_clover_nan_Training - fixed.log,clover,Training - fixed,,2023-11-13 13:01:26.435669,-1 days +16:11:52.465205
-44,Experiment_2023-11-14T16:29:57.013745_clover_nan_Test Type 1.log,clover,Test Type 1,,2023-11-14 16:29:57.013745,1 days 03:28:30.578076
-45,Experiment_2023-11-14T07:17:26.885747_clover_nan_Training randomised Type 2.log,clover,Training randomised Type 2,,2023-11-14 07:17:26.885747,-1 days +14:47:29.872002
-46,Experiment_2023-10-06T15:37:08.619329_dodge_1_Training - fixed.log,dodge,Training - fixed,1,2023-10-06 15:37:08.619329,-39 days +08:19:41.733582
+36,Experiment_2023-11-13T13:01:26.435669_clover_nan_Training - fixed.log,clover,Training - fixed,,2023-11-13 13:01:26.435669,22 days 01:24:44.982338
+37,Experiment_2023-11-14T16:29:57.013745_clover_nan_Test Type 1.log,clover,Test Type 1,,2023-11-14 16:29:57.013745,1 days 03:28:30.578076
+38,Experiment_2023-11-13T20:49:33.970464_clover_nan_Training randomised Type 1.log,clover,Training randomised Type 1,,2023-11-13 20:49:33.970464,-1 days +04:19:36.956719
+39,Experiment_2023-11-13T20:54:16.427672_clover_nan_Training randomised Type 1.log,clover,Training randomised Type 1,,2023-11-13 20:54:16.427672,0 days 00:04:42.457208
+40,Experiment_2023-11-14T07:17:26.885747_clover_nan_Training randomised Type 2.log,clover,Training randomised Type 2,,2023-11-14 07:17:26.885747,0 days 10:23:10.458075
+41,Experiment_2023-11-15T00:39:50.244185_clover_nan_Test Type 1.log,clover,Test Type 1,,2023-11-15 00:39:50.244185,0 days 17:22:23.358438
+42,Experiment_2023-11-13T04:02:49.575872_clover_nan_Training - fixed.log,clover,Training - fixed,,2023-11-13 04:02:49.575872,-2 days +03:22:59.331687
+43,Experiment_2023-11-17T05:22:49.445377_clover_nan_Test Type 1.log,clover,Test Type 1,,2023-11-17 05:22:49.445377,4 days 01:19:59.869505
+44,Experiment_2023-11-17T01:23:36.375164_clover_nan_Test Type 3.log,clover,Test Type 3,,2023-11-17 01:23:36.375164,-1 days +20:00:46.929787
+45,Experiment_2023-11-15T23:18:27.463685_clover_nan_Test Type 2.log,clover,Test Type 2,,2023-11-15 23:18:27.463685,-2 days +21:54:51.088521
+46,Experiment_2023-10-06T15:37:08.619329_dodge_1_Training - fixed.log,dodge,Training - fixed,1,2023-10-06 15:37:08.619329,-41 days +16:18:41.155644
 47,Experiment_2023-10-07T14:30:16.073357_dodge_2_Training - fixed.log,dodge,Training - fixed,2,2023-10-07 14:30:16.073357,0 days 22:53:07.454028
 48,Experiment_2023-10-08T13:10:43.954358_dodge_3_Training - fixed.log,dodge,Training - fixed,3,2023-10-08 13:10:43.954358,0 days 22:40:27.881001
 49,Experiment_2023-10-09T14:28:21.463730_dodge_4_Training randomised Type 1.log,dodge,Training randomised Type 1,4,2023-10-09 14:28:21.463730,1 days 01:17:37.509372
@@ -79,12 +79,12 @@
 78,Experiment_2023-10-20T14:08:54.608210_filly_11_Test Type 3.log,filly,Test Type 3,11,2023-10-20 14:08:54.608210,3 days 22:36:20.198871
 79,Experiment_2023-10-21T14:15:00.246809_filly_12_Test Type 3.log,filly,Test Type 3,12,2023-10-21 14:15:00.246809,1 days 00:06:05.638599
 80,Experiment_2023-11-16T11:37:18.984569_freya_nan_Test Type 1.log,freya,Test Type 1,,2023-11-16 11:37:18.984569,25 days 21:22:18.737760
-81,Experiment_2023-11-14T23:17:57.967289_freya_nan_Test Type 2.log,freya,Test Type 2,,2023-11-14 23:17:57.967289,-2 days +11:40:38.982720
-82,Experiment_2023-11-13T01:52:41.875007_freya_nan_Training - fixed.log,freya,Training - fixed,,2023-11-13 01:52:41.875007,-2 days +02:34:43.907718
-83,Experiment_2023-11-13T19:19:51.364628_freya_nan_Training randomised Type 1.log,freya,Training randomised Type 1,,2023-11-13 19:19:51.364628,0 days 17:27:09.489621
-84,Experiment_2023-11-13T10:57:03.527161_freya_nan_Training - fixed.log,freya,Training - fixed,,2023-11-13 10:57:03.527161,-1 days +15:37:12.162533
-85,Experiment_2023-11-16T05:15:17.737341_freya_nan_Test Type 3.log,freya,Test Type 3,,2023-11-16 05:15:17.737341,2 days 18:18:14.210180
-86,Experiment_2023-11-14T05:29:24.069610_freya_nan_Test Type 1.log,freya,Test Type 1,,2023-11-14 05:29:24.069610,-2 days +00:14:06.332269
+81,Experiment_2023-11-16T05:15:17.737341_freya_nan_Test Type 3.log,freya,Test Type 3,,2023-11-16 05:15:17.737341,-1 days +17:37:58.752772
+82,Experiment_2023-11-13T01:52:41.875007_freya_nan_Training - fixed.log,freya,Training - fixed,,2023-11-13 01:52:41.875007,-4 days +20:37:24.137666
+83,Experiment_2023-11-14T23:17:57.967289_freya_nan_Test Type 2.log,freya,Test Type 2,,2023-11-14 23:17:57.967289,1 days 21:25:16.092282
+84,Experiment_2023-11-13T10:57:03.527161_freya_nan_Training - fixed.log,freya,Training - fixed,,2023-11-13 10:57:03.527161,-2 days +11:39:05.559872
+85,Experiment_2023-11-13T19:19:51.364628_freya_nan_Training randomised Type 1.log,freya,Training randomised Type 1,,2023-11-13 19:19:51.364628,0 days 08:22:47.837467
+86,Experiment_2023-11-14T05:29:24.069610_freya_nan_Test Type 1.log,freya,Test Type 1,,2023-11-14 05:29:24.069610,0 days 10:09:32.704982
 87,Experiment_2023-11-12T19:14:04.462174_george_1.0_Training - fixed.log,george,Training - fixed,1,2023-11-12 19:14:04.462174,-2 days +13:44:40.392564
 88,Experiment_2023-11-13T06:05:07.391993_george_2.0_Training - fixed.log,george,Training - fixed,2,2023-11-13 06:05:07.391993,0 days 10:51:02.929819
 89,Experiment_2023-11-13T14:49:56.787891_george_3.0_Training randomised Type 1.log,george,Training randomised Type 1,3,2023-11-13 14:49:56.787891,0 days 08:44:49.395898
@@ -145,15 +145,15 @@
 144,Experiment_2023-11-15T04:42:42.109160_nix_9.0_Test Type 1.log,nix,Test Type 1,9,2023-11-15 04:42:42.109160,0 days 08:59:56.002737
 145,Experiment_2023-11-16T09:12:31.465402_nix_10.0_Test Type 3.log,nix,Test Type 3,10,2023-11-16 09:12:31.465402,1 days 04:29:49.356242
 146,Experiment_2023-11-16T15:46:42.899255_nix_11.0_Test Type 1.log,nix,Test Type 1,11,2023-11-16 15:46:42.899255,0 days 06:34:11.433853
-147,Experiment_2023-11-13T12:06:45.400077_pumba_nan_Training - fixed.log,pumba,Training - fixed,,2023-11-13 12:06:45.400077,-4 days +20:20:02.500822
-148,Experiment_2023-11-17T00:36:27.593791_pumba_nan_Test Type 3.log,pumba,Test Type 3,,2023-11-17 00:36:27.593791,3 days 12:29:42.193714
-149,Experiment_2023-11-14T15:40:26.284336_pumba_nan_Training randomised Type 2.log,pumba,Training randomised Type 2,,2023-11-14 15:40:26.284336,-3 days +15:03:58.690545
-150,Experiment_2023-11-14T06:35:09.308410_pumba_nan_Test Type 1.log,pumba,Test Type 1,,2023-11-14 06:35:09.308410,-1 days +14:54:43.024074
-151,Experiment_2023-11-13T03:05:04.626964_pumba_nan_Training - fixed.log,pumba,Training - fixed,,2023-11-13 03:05:04.626964,-2 days +20:29:55.318554
-152,Experiment_2023-11-16T00:37:29.832581_pumba_nan_Test Type 2.log,pumba,Test Type 2,,2023-11-16 00:37:29.832581,2 days 21:32:25.205617
-153,Experiment_2023-11-15T00:06:05.447953_pumba_nan_Test Type 1.log,pumba,Test Type 1,,2023-11-15 00:06:05.447953,-2 days +23:28:35.615372
-154,Experiment_2023-11-13T21:26:18.412625_pumba_nan_Training - fixed.log,pumba,Training - fixed,,2023-11-13 21:26:18.412625,-2 days +21:20:12.964672
-155,Experiment_2023-11-12T20:44:49.282652_smudge_1.0_Training - fixed.log,smudge,Training - fixed,1,2023-11-12 20:44:49.282652,-2 days +23:18:30.870027
+147,Experiment_2023-11-14T15:40:26.284336_pumba_nan_Training randomised Type 2.log,pumba,Training randomised Type 2,,2023-11-14 15:40:26.284336,-3 days +23:53:43.385081
+148,Experiment_2023-11-13T03:05:04.626964_pumba_nan_Training - fixed.log,pumba,Training - fixed,,2023-11-13 03:05:04.626964,-2 days +11:24:38.342628
+149,Experiment_2023-11-13T12:06:45.400077_pumba_nan_Training - fixed.log,pumba,Training - fixed,,2023-11-13 12:06:45.400077,0 days 09:01:40.773113
+150,Experiment_2023-11-16T00:37:29.832581_pumba_nan_Test Type 2.log,pumba,Test Type 2,,2023-11-16 00:37:29.832581,2 days 12:30:44.432504
+151,Experiment_2023-11-15T00:06:05.447953_pumba_nan_Test Type 1.log,pumba,Test Type 1,,2023-11-15 00:06:05.447953,-2 days +23:28:35.615372
+152,Experiment_2023-11-13T21:26:18.412625_pumba_nan_Training - fixed.log,pumba,Training - fixed,,2023-11-13 21:26:18.412625,-2 days +21:20:12.964672
+153,Experiment_2023-11-14T06:35:09.308410_pumba_nan_Test Type 1.log,pumba,Test Type 1,,2023-11-14 06:35:09.308410,0 days 09:08:50.895785
+154,Experiment_2023-11-17T00:36:27.593791_pumba_nan_Test Type 3.log,pumba,Test Type 3,,2023-11-17 00:36:27.593791,2 days 18:01:18.285381
+155,Experiment_2023-11-12T20:44:49.282652_smudge_1.0_Training - fixed.log,smudge,Training - fixed,1,2023-11-12 20:44:49.282652,-5 days +20:08:21.688861
 156,Experiment_2023-11-13T05:23:15.688175_smudge_2.0_Training - fixed.log,smudge,Training - fixed,2,2023-11-13 05:23:15.688175,0 days 08:38:26.405523
 157,Experiment_2023-11-13T14:11:10.054657_smudge_3.0_Training - fixed.log,smudge,Training - fixed,3,2023-11-13 14:11:10.054657,0 days 08:47:54.366482
 158,Experiment_2023-11-13T23:31:59.936909_smudge_4.0_Training randomised Type 1.log,smudge,Training randomised Type 1,4,2023-11-13 23:31:59.936909,0 days 09:20:49.882252

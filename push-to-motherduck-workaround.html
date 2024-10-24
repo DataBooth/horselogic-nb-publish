@@ -191,7 +191,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">Wed Oct 23, 2024 1:59 PM</p>
+        <p class="date">Thu Oct 24, 2024 5:37 PM</p>
       </div>
     </div>
     
@@ -216,8 +216,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#sharing-of-motherduck-copy-of-database" id="toc-sharing-of-motherduck-copy-of-database" class="nav-link active" data-scroll-target="#sharing-of-motherduck-copy-of-database">Sharing of MotherDuck copy of database</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content quarto-banner-title-block" id="quarto-document-content">
@@ -242,21 +248,14 @@ ATTACH 'md:';</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"45064097f8014fdcbbc0be5d335b5d83","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"c2aacc6530a6406d9bc58b61525e9755","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>ATTACH '../data/Experiments_CB_2023_Q4.ddb' AS local_source_db
 USE 'local_source_db'
 CREATE OR REPLACE DATABASE Experiments_CB_2023_Q4
-COPY FROM DATABASE local_source_db TO Experiments_CB_2023_Q4 (SCHEMA)
-Table order: ['ExperimentCBs', 'TrialCBs', 'ResponseCBs', 'EventCBs']
-INSERT INTO Experiments_CB_2023_Q4.ExperimentCBs SELECT * FROM local_source_db.ExperimentCBs
-INSERT INTO Experiments_CB_2023_Q4.TrialCBs SELECT * FROM local_source_db.TrialCBs
-INSERT INTO Experiments_CB_2023_Q4.ResponseCBs SELECT * FROM local_source_db.ResponseCBs
-INSERT INTO Experiments_CB_2023_Q4.EventCBs SELECT * FROM local_source_db.EventCBs
-
-INFO: Database 'Experiments_CB_2023_Q4' created and populated successfully.</code></pre>
+ERROR: An error occurred: MDExternalException: Failed to drop the database because there are still database shares linked to it. Use DROP DATABASE &lt;db_name&gt; CASCADE to drop the database and all associated shares.</code></pre>
 </div>
 </div>
 <div id="cell-9" class="cell" data-execution_count="9">
@@ -275,12 +274,129 @@ All tables and data match!
 Databases are identical: True</code></pre>
 </div>
 </div>
+<section id="sharing-of-motherduck-copy-of-database" class="level3">
+<h3 class="anchored" data-anchor-id="sharing-of-motherduck-copy-of-database">Sharing of MotherDuck copy of database</h3>
+<p>Example of accessing the MD</p>
+<div id="cell-14" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>MD_SHARE <span class="op">=</span> <span class="st">"md:_share/Experiments_CB_2023_Q4/4bb7c820-c750-460e-8ff0-f16a7bc2a1a7"</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the MotherDuck token from environment variable</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>md_token <span class="op">=</span> os.getenv(<span class="st">'MD_TOKEN'</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">not</span> md_token:</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"MotherDuck token not found. Please set the MD_TOKEN environment variable."</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Connect to MotherDuck</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>conn <span class="op">=</span> duckdb.<span class="ex">connect</span>(<span class="st">'md:?motherduck_token='</span> <span class="op">+</span> md_token)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Attach the shared database</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    conn.execute(<span class="ss">f"ATTACH '</span><span class="sc">{</span>MD_SHARE<span class="sc">}</span><span class="ss">' AS shared_db"</span>)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"Shared database attached successfully."</span>)</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Run the COUNT query</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> conn.execute(<span class="st">"SELECT COUNT(*) FROM shared_db.ExperimentCBs"</span>).fetchone()</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> result:</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>        count <span class="op">=</span> result[<span class="dv">0</span>]</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Total count of records in ExperimentCBs: </span><span class="sc">{</span>count<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"No results returned from the query."</span>)</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> duckdb.Error <span class="im">as</span> e:</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"An error occurred: </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Close the connection</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    conn.close()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>An error occurred: Binder Error: Failed to attach database: database with name "shared_db" already exists</code></pre>
+</div>
+</div>
+<p>Example (DRAFT) Java code for connecting to database share on MotherDuck - result should be 183</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="im">java</span><span class="op">.</span><span class="im">sql</span><span class="op">.*;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> MotherDuckShareExample <span class="op">{</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">static</span> <span class="dt">void</span> <span class="fu">main</span><span class="op">(</span><span class="bu">String</span><span class="op">[]</span> args<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>        <span class="co">// JDBC URL for MotherDuck</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> jdbcUrl <span class="op">=</span> <span class="st">"jdbc:duckdb:"</span><span class="op">;</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        <span class="co">// MotherDuck token (should be stored securely, e.g., as an environment variable)</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> mdToken <span class="op">=</span> <span class="bu">System</span><span class="op">.</span><span class="fu">getenv</span><span class="op">(</span><span class="st">"MD_TOKEN"</span><span class="op">);</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Share URL stored in a variable</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> MD_SHARE <span class="op">=</span> <span class="st">"md:_share/Experiments_CB_2023_Q4/4bb7c820-c750-460e-8ff0"</span><span class="op">;</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>mdToken <span class="op">==</span> <span class="kw">null</span> <span class="op">||</span> mdToken<span class="op">.</span><span class="fu">isEmpty</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>            <span class="bu">System</span><span class="op">.</span><span class="fu">err</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"MotherDuck token not found. Please set the MD_TOKEN environment variable."</span><span class="op">);</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span><span class="op">;</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span> <span class="op">(</span><span class="bu">Connection</span> conn <span class="op">=</span> <span class="bu">DriverManager</span><span class="op">.</span><span class="fu">getConnection</span><span class="op">(</span>jdbcUrl<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Set the MotherDuck token</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>            <span class="cf">try</span> <span class="op">(</span><span class="bu">Statement</span> stmt <span class="op">=</span> conn<span class="op">.</span><span class="fu">createStatement</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>                stmt<span class="op">.</span><span class="fu">execute</span><span class="op">(</span><span class="st">"SET motherduck_token='"</span> <span class="op">+</span> mdToken <span class="op">+</span> <span class="st">"'"</span><span class="op">);</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Attach the shared database</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>            <span class="bu">String</span> attachQuery <span class="op">=</span> <span class="st">"ATTACH '"</span> <span class="op">+</span> MD_SHARE <span class="op">+</span> <span class="st">"' AS shared_db"</span><span class="op">;</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>            <span class="cf">try</span> <span class="op">(</span><span class="bu">Statement</span> stmt <span class="op">=</span> conn<span class="op">.</span><span class="fu">createStatement</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>                stmt<span class="op">.</span><span class="fu">execute</span><span class="op">(</span>attachQuery<span class="op">);</span></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>                <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Shared database attached successfully."</span><span class="op">);</span></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Run the COUNT query</span></span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>            <span class="bu">String</span> countQuery <span class="op">=</span> <span class="st">"SELECT COUNT(*) FROM shared_db.ExperimentCBs"</span><span class="op">;</span></span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>            <span class="cf">try</span> <span class="op">(</span><span class="bu">Statement</span> stmt <span class="op">=</span> conn<span class="op">.</span><span class="fu">createStatement</span><span class="op">();</span></span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>                 <span class="bu">ResultSet</span> rs <span class="op">=</span> stmt<span class="op">.</span><span class="fu">executeQuery</span><span class="op">(</span>countQuery<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="op">(</span>rs<span class="op">.</span><span class="fu">next</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">long</span> count <span class="op">=</span> rs<span class="op">.</span><span class="fu">getLong</span><span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>                    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Total count of records in ExperimentCBs: "</span> <span class="op">+</span> count<span class="op">);</span></span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>                <span class="op">}</span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span><span class="bu">SQLException</span> e<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>            e<span class="op">.</span><span class="fu">printStackTrace</span><span class="op">();</span></span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Similarly Javascript:</p>
+<p>```javascript const duckdb = require(‘duckdb’);</p>
+<p>// MotherDuck token (should be stored securely, e.g., as an environment variable) const mdToken = process.env.MD_TOKEN;</p>
+<p>// Share URL stored in a variable const MD_SHARE = “md:_share/Experiments_CB_2023_Q4/4bb7c820-c750-460e-8ff0”;</p>
+<p>if (!mdToken) { console.error(“MotherDuck token not found. Please set the MD_TOKEN environment variable.”); process.exit(1); }</p>
+<p>// Create a new database connection const db = new duckdb.Database(‘:memory:’);</p>
+<p>// Create a new connection object const conn = new duckdb.Connection(db);</p>
+<p>// Function to run queries function runQuery(query) { return new Promise((resolve, reject) =&gt; { conn.all(query, (err, result) =&gt; { if (err) reject(err); else resolve(result); }); }); }</p>
+<p>async function main() { try { // Set the MotherDuck token await runQuery(<code>SET motherduck_token='${mdToken}'</code>);</p>
+<pre><code>    // Attach the shared database
+    await runQuery(`ATTACH '${MD_SHARE}' AS shared_db`);
+    console.log("Shared database attached successfully.");
+
+    // Run the COUNT query
+    const result = await runQuery("SELECT COUNT(*) as count FROM shared_db.ExperimentCBs");
+    
+    if (result &amp;&amp; result.length &gt; 0) {
+        console.log(`Total count of records in ExperimentCBs: ${result[0].count}`);
+    } else {
+        console.log("No results returned from the query.");
+    }
+} catch (error) {
+    console.error("An error occurred:", error);
+} finally {
+    // Close the connection
+    conn.close();
+    db.close();
+}</code></pre>
+<p>}</p>
+<p>main();</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script type="application/vnd.jupyter.widget-state+json">
-{"state":{"44302eb6bf4a43cba6523084cf0955ce":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"ProgressStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"ProgressStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","bar_color":"black","description_width":""}},"45064097f8014fdcbbc0be5d335b5d83":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"FloatProgressModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"FloatProgressModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"ProgressView","bar_style":"","description":"","description_allow_html":false,"layout":"IPY_MODEL_6ba648c2aaf9450faf9ec995031c1aa8","max":100,"min":0,"orientation":"horizontal","style":"IPY_MODEL_44302eb6bf4a43cba6523084cf0955ce","tabbable":null,"tooltip":null,"value":100}},"6ba648c2aaf9450faf9ec995031c1aa8":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":"auto"}}},"version_major":2,"version_minor":0}
+{"state":{"1ecef680c7c64fbea613be70f9f49cb9":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":"auto"}},"8e82febbfcf24aaa97c3622d2ee03eef":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"ProgressStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"ProgressStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","bar_color":"black","description_width":""}},"c2aacc6530a6406d9bc58b61525e9755":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"FloatProgressModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"FloatProgressModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"ProgressView","bar_style":"","description":"","description_allow_html":false,"layout":"IPY_MODEL_1ecef680c7c64fbea613be70f9f49cb9","max":100,"min":0,"orientation":"horizontal","style":"IPY_MODEL_8e82febbfcf24aaa97c3622d2ee03eef","tabbable":null,"tooltip":null,"value":100}}},"version_major":2,"version_minor":0}
 </script>
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
