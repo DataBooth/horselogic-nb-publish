@@ -191,7 +191,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">Thu Oct 31, 2024 12:58 PM</p>
+        <p class="date">Fri Nov 1, 2024 10:30 AM</p>
       </div>
     </div>
     
@@ -232,15 +232,525 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<div id="cell-3" class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>SCHEMA <span class="op">=</span> Path(<span class="st">"../sql/create_cb_experiment_tables_ddb.sql"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="cell-4" class="cell" data-execution_count="4">
+<div id="cell-2" class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"DuckDB version: </span><span class="sc">{</span>duckdb<span class="sc">.</span>__version__<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Inferred table order (top-level first): ['ExperimentCBs', 'TrialCBs', 'ResponseCBs', 'EventCBs']</code></pre>
+<pre><code>DuckDB version: 1.1.2</code></pre>
 </div>
+</div>
+<div id="cell-3" class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_schema_info(conn):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Get table information</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    tables_query <span class="op">=</span> <span class="st">"""</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT table_schema, table_name, table_type</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM information_schema.tables</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="st">    WHERE table_schema != 'information_schema'</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="st">    ORDER BY table_schema, table_name</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="st">    """</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    tables <span class="op">=</span> conn.execute(tables_query).fetchall()</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Get column information for each table</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    schema_info <span class="op">=</span> {}</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> schema, table, table_type <span class="kw">in</span> tables:</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>        columns_query <span class="op">=</span> <span class="ss">f"""</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="ss">        SELECT column_name, data_type, is_nullable</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="ss">        FROM information_schema.columns</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="ss">        WHERE table_schema = '</span><span class="sc">{</span>schema<span class="sc">}</span><span class="ss">' AND table_name = '</span><span class="sc">{</span>table<span class="sc">}</span><span class="ss">'</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="ss">        ORDER BY ordinal_position</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="ss">        """</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>        columns <span class="op">=</span> conn.execute(columns_query).fetchall()</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> schema <span class="kw">not</span> <span class="kw">in</span> schema_info:</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>            schema_info[schema] <span class="op">=</span> {}</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>        schema_info[schema][table] <span class="op">=</span> {</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>            <span class="st">'type'</span>: table_type,</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>            <span class="st">'columns'</span>: [</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>                {</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'name'</span>: col[<span class="dv">0</span>],</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'type'</span>: col[<span class="dv">1</span>],</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>                    <span class="st">'nullable'</span>: col[<span class="dv">2</span>] <span class="op">==</span> <span class="st">'YES'</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>                } <span class="cf">for</span> col <span class="kw">in</span> columns</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>            ]</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> schema_info</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-5" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Connect to your DuckDB database</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>conn <span class="op">=</span> duckdb.<span class="ex">connect</span>(<span class="bu">str</span>(CB_DATABASE))</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the schema information</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>schema_info <span class="op">=</span> get_schema_info(conn)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the schema information</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> schema, tables <span class="kw">in</span> schema_info.items():</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Schema: </span><span class="sc">{</span>schema<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> table, info <span class="kw">in</span> tables.items():</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"  Table: </span><span class="sc">{</span>table<span class="sc">}</span><span class="ss"> (</span><span class="sc">{</span>info[<span class="st">'type'</span>]<span class="sc">}</span><span class="ss">)"</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> column <span class="kw">in</span> info[<span class="st">'columns'</span>]:</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>            nullable <span class="op">=</span> <span class="st">"NULL"</span> <span class="cf">if</span> column[<span class="st">'nullable'</span>] <span class="cf">else</span> <span class="st">"NOT NULL"</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"    </span><span class="sc">{</span>column[<span class="st">'name'</span>]<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>column[<span class="st">'type'</span>]<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>nullable<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Schema: main
+  Table: CorrectionWithExistingValues (VIEW)
+    Cohort VARCHAR NULL
+    ExperimentDate DATE NULL
+    SessionType VARCHAR NULL
+    SubjectName VARCHAR NULL
+    TrialNumber INTEGER NULL
+    TrialType VARCHAR NULL
+    ResponseTime DOUBLE NULL
+    ResponseType VARCHAR NULL
+    Comment VARCHAR NULL
+    LogFilename VARCHAR NULL
+    CorrectTable VARCHAR NULL
+    CorrectField VARCHAR NULL
+    CorrectValue VARCHAR NULL
+    TableToCorrect VARCHAR NULL
+    FieldToCorrect VARCHAR NULL
+    ValueToCorrect VARCHAR NULL
+    ExistingResponseType VARCHAR NULL
+    ExistingResponseTime DOUBLE NULL
+    ComparisonResult VARCHAR NULL
+  Table: Corrections (BASE TABLE)
+    Cohort VARCHAR NULL
+    ExperimentDate DATE NULL
+    SessionType VARCHAR NULL
+    SubjectName VARCHAR NULL
+    TrialNumber INTEGER NULL
+    TrialType VARCHAR NULL
+    ResponseTime DOUBLE NULL
+    ResponseType VARCHAR NULL
+    Comment VARCHAR NULL
+    LogFilename VARCHAR NULL
+    CorrectTable VARCHAR NULL
+    CorrectField VARCHAR NULL
+    CorrectValue VARCHAR NULL
+  Table: CorrectionsSplit (VIEW)
+    Cohort VARCHAR NULL
+    ExperimentDate DATE NULL
+    SessionType VARCHAR NULL
+    SubjectName VARCHAR NULL
+    TrialNumber INTEGER NULL
+    TrialType VARCHAR NULL
+    ResponseTime DOUBLE NULL
+    ResponseType VARCHAR NULL
+    Comment VARCHAR NULL
+    LogFilename VARCHAR NULL
+    CorrectTable VARCHAR NULL
+    CorrectField VARCHAR NULL
+    CorrectValue VARCHAR NULL
+    TableToCorrect VARCHAR NULL
+    FieldToCorrect VARCHAR NULL
+    ValueToCorrect VARCHAR NULL
+  Table: EventCBs (BASE TABLE)
+    EventID INTEGER NOT NULL
+    TrialID INTEGER NULL
+    EventType VARCHAR NULL
+    EventTime TIMESTAMP NULL
+    ElapsedTime DOUBLE NULL
+  Table: EventCBsCorrected (VIEW)
+    EventID BIGINT NULL
+    TrialID BIGINT NULL
+    EventType VARCHAR NULL
+    EventTime TIMESTAMP NULL
+    ElapsedTime DOUBLE NULL
+    CorrectedFlag VARCHAR NULL
+  Table: ExperimentCBs (BASE TABLE)
+    ExperimentID INTEGER NOT NULL
+    Cohort VARCHAR NULL
+    SubjectName VARCHAR NULL
+    SubjectNumber INTEGER NULL
+    SessionNumber INTEGER NULL
+    SessionType VARCHAR NULL
+    ExperimentType VARCHAR NULL
+    Direction VARCHAR NULL
+    Comment VARCHAR NULL
+    DateTime TIMESTAMP NULL
+    LogFileName VARCHAR NULL
+    Parameters JSON NULL
+  Table: ExperimentCBsCorrected (VIEW)
+    ExperimentID BIGINT NULL
+    Cohort VARCHAR NULL
+    DateTime TIMESTAMP NULL
+    SessionType VARCHAR NULL
+    SubjectName VARCHAR NULL
+    LogFileName VARCHAR NULL
+    DataSource VARCHAR NULL
+  Table: ResponseCBs (BASE TABLE)
+    ResponseID INTEGER NOT NULL
+    TrialID INTEGER NULL
+    ResponseTime DOUBLE NULL
+    EventDateTime TIMESTAMP NULL
+  Table: ResponseCBsCorrected (VIEW)
+    ResponseID BIGINT NULL
+    TrialID BIGINT NULL
+    ResponseTime DOUBLE NULL
+    EventDateTime TIMESTAMP NULL
+    CorrectedFlag VARCHAR NULL
+  Table: TrialCBs (BASE TABLE)
+    TrialID INTEGER NOT NULL
+    ExperimentID INTEGER NULL
+    TrialNumber INTEGER NULL
+    ResponseType VARCHAR NULL
+    TrialSubType VARCHAR NULL
+    CriterionType VARCHAR NULL
+    CriterionCount INTEGER NULL
+    TrialStartTime TIMESTAMP NULL
+    TrialEndTime TIMESTAMP NULL
+  Table: TrialCBsCorrected (VIEW)
+    TrialID BIGINT NULL
+    ExperimentID BIGINT NULL
+    TrialNumber INTEGER NULL
+    TrialSubType VARCHAR NULL
+    ResponseType VARCHAR NULL
+    CriterionType VARCHAR NULL
+    CriterionCount HUGEINT NULL
+    TrialStartTime TIMESTAMP NULL
+    TrialEndTime TIMESTAMP NULL
+    CorrectedFlag VARCHAR NULL
+</code></pre>
+</div>
+</div>
+<div id="cell-6" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> topological_sort(graph: Dict[<span class="bu">str</span>, Set[<span class="bu">str</span>]]) <span class="op">-&gt;</span> List[<span class="bu">str</span>]:</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Perform a topological sort on the dependency graph.</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">    This implementation uses depth-first search to produce a topological ordering.</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">    The result is in the desired order (tables with no dependencies first).</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">    Args:</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">        graph (Dict[str, Set[str]]): The dependency graph where keys are table names</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">                                     and values are sets of tables they depend on.</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co">        List[str]: A list of table names in topological order.</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    visited: Set[<span class="bu">str</span>] <span class="op">=</span> <span class="bu">set</span>()</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    result: List[<span class="bu">str</span>] <span class="op">=</span> []</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> dfs(node: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="va">None</span>:</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> node <span class="kw">in</span> visited:</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>        visited.add(node)</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> neighbor <span class="kw">in</span> graph.get(node, []):</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> neighbor <span class="kw">not</span> <span class="kw">in</span> visited:</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>                dfs(neighbor)</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>        result.append(node)</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> node <span class="kw">in</span> graph:</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> node <span class="kw">not</span> <span class="kw">in</span> visited:</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>            dfs(node)</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result[::<span class="op">-</span><span class="dv">1</span>]  <span class="co"># Reverse the result to get tables with no dependencies first</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="cell-7" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> infer_table_order(conn):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Get table and foreign key information</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    fk_query <span class="op">=</span> <span class="st">"""</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT tc.table_schema, tc.table_name, </span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="st">           kcu.column_name, </span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="st">           ccu.table_schema AS foreign_table_schema,</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="st">           ccu.table_name AS foreign_table_name,</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="st">           ccu.column_name AS foreign_column_name </span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM information_schema.table_constraints AS tc </span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="st">    JOIN information_schema.key_column_usage AS kcu</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="st">      ON tc.constraint_name = kcu.constraint_name</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="st">      AND tc.table_schema = kcu.table_schema</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="st">    JOIN information_schema.constraint_column_usage AS ccu</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="st">      ON ccu.constraint_name = tc.constraint_name</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="st">      AND ccu.table_schema = tc.table_schema</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="st">    WHERE tc.constraint_type = 'FOREIGN KEY'</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="st">    """</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    foreign_keys <span class="op">=</span> conn.execute(fk_query).fetchall()</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Build dependency graph</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    dependencies <span class="op">=</span> {}</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> schema, table, _, _, foreign_table, _ <span class="kw">in</span> foreign_keys:</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>        full_table <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>schema<span class="sc">}</span><span class="ss">.</span><span class="sc">{</span>table<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>        full_foreign_table <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>schema<span class="sc">}</span><span class="ss">.</span><span class="sc">{</span>foreign_table<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> full_table <span class="kw">not</span> <span class="kw">in</span> dependencies:</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>            dependencies[full_table] <span class="op">=</span> <span class="bu">set</span>()</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>        dependencies[full_table].add(full_foreign_table)</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Add tables with no foreign keys</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>    tables_query <span class="op">=</span> <span class="st">"""</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a><span class="st">    SELECT table_schema, table_name</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a><span class="st">    FROM information_schema.tables</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a><span class="st">    WHERE table_schema != 'information_schema'</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a><span class="st">    """</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>    all_tables <span class="op">=</span> conn.execute(tables_query).fetchall()</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> schema, table <span class="kw">in</span> all_tables:</span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>        full_table <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>schema<span class="sc">}</span><span class="ss">.</span><span class="sc">{</span>table<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> full_table <span class="kw">not</span> <span class="kw">in</span> dependencies:</span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>            dependencies[full_table] <span class="op">=</span> <span class="bu">set</span>()</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Perform topological sort</span></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>    sorted_tables <span class="op">=</span> topological_sort(dependencies)</span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> sorted_tables</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-8" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>table_order <span class="op">=</span> infer_table_order(conn)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-9" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>table_order</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<pre><code>['main.TrialCBsCorrected',
+ 'main.ResponseCBsCorrected',
+ 'main.ExperimentCBsCorrected',
+ 'main.EventCBsCorrected',
+ 'main.CorrectionWithExistingValues',
+ 'main.CorrectionsSplit',
+ 'main.ExperimentCBs',
+ 'main.Corrections',
+ 'main.TrialCBs',
+ 'main.ResponseCBs',
+ 'main.EventCBs']</code></pre>
+</div>
+</div>
+<div id="cell-10" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Over-write table order (not inferred correctly)</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>table_order <span class="op">=</span> <span class="op">\</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>[</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'ExperimentCBs'</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'TrialCBs'</span>,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'ResponseCBs'</span>,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'EventCBs'</span>,</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">'Corrections'</span>,</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">'CorrectionsSplit'</span>,</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">'CorrectionWithExistingValues'</span>,</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">'ExperimentCBsCorrected'</span>,</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">'TrialCBsCorrected'</span>,</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">'ResponseCBsCorrected'</span>,</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">'EventCBsCorrected'</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>] </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-11" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># # | echo: false</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># def infer_table_order_file_based(schema_file_path: str) -&gt; List[str]:</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co">#     """</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co">#     Infer the order of table creation based on foreign key dependencies.</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co">#     This function reads a SQL schema file, analyzes the CREATE TABLE statements</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co">#     and their foreign key relationships, and returns a list of table names in an</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="co">#     order that ensures all dependencies are met when creating the tables.</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co">#     The order starts with tables that have no dependencies (top-level tables) and</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="co">#     ends with tables that depend on others.</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="co">#     Args:</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="co">#         schema_file_path (str): The file path to the SQL schema file.</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="co">#     Returns:</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="co">#         List[str]: A list of table names in the order they should be created,</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a><span class="co">#                    starting with tables with no dependencies.</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="co">#     Raises:</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a><span class="co">#         FileNotFoundError: If the specified schema file cannot be found.</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a><span class="co">#         ValueError: If no valid CREATE TABLE statements are found in the file.</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="co">#     """</span></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a><span class="co">#     # Read the schema from the file</span></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a><span class="co">#     try:</span></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a><span class="co">#         with open(schema_file_path, "r") as file:</span></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a><span class="co">#             schema_sql = file.read()</span></span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a><span class="co">#     except FileNotFoundError:</span></span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a><span class="co">#         raise FileNotFoundError(f"Schema file not found: {schema_file_path}")</span></span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a><span class="co">#     # Remove comments and split into CREATE TABLE statements</span></span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a><span class="co">#     schema_sql = remove_comments(schema_sql)</span></span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a><span class="co">#     create_statements = split_create_statements(schema_sql)</span></span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a><span class="co">#     if not create_statements:</span></span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a><span class="co">#         raise ValueError("No valid CREATE TABLE statements found in the schema file.")</span></span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a><span class="co">#     # Build dependency graph</span></span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a><span class="co">#     dependencies = build_dependency_graph(create_statements)</span></span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a><span class="co">#     # Perform topological sort</span></span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a><span class="co">#     sorted_tables = topological_sort(dependencies)</span></span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a><span class="co">#     return sorted_tables  # This is already in the desired order (top-level first)</span></span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a><span class="co"># # | echo: false</span></span>
+<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a><span class="co"># def remove_comments(sql: str) -&gt; str:</span></span>
+<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a><span class="co">#     """</span></span>
+<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a><span class="co">#     Remove SQL comments from the input string.</span></span>
+<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a><span class="co">#     Args:</span></span>
+<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a><span class="co">#         sql (str): The input SQL string.</span></span>
+<span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-59"><a href="#cb12-59" aria-hidden="true" tabindex="-1"></a><span class="co">#     Returns:</span></span>
+<span id="cb12-60"><a href="#cb12-60" aria-hidden="true" tabindex="-1"></a><span class="co">#         str: The SQL string with comments removed.</span></span>
+<span id="cb12-61"><a href="#cb12-61" aria-hidden="true" tabindex="-1"></a><span class="co">#     """</span></span>
+<span id="cb12-62"><a href="#cb12-62" aria-hidden="true" tabindex="-1"></a><span class="co">#     return re.sub(r"--.*$", "", sql, flags=re.MULTILINE)</span></span>
+<span id="cb12-63"><a href="#cb12-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-64"><a href="#cb12-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-65"><a href="#cb12-65" aria-hidden="true" tabindex="-1"></a><span class="co"># def split_create_statements(sql: str) -&gt; List[str]:</span></span>
+<span id="cb12-66"><a href="#cb12-66" aria-hidden="true" tabindex="-1"></a><span class="co">#     """</span></span>
+<span id="cb12-67"><a href="#cb12-67" aria-hidden="true" tabindex="-1"></a><span class="co">#     Split the SQL string into individual CREATE TABLE statements.</span></span>
+<span id="cb12-68"><a href="#cb12-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-69"><a href="#cb12-69" aria-hidden="true" tabindex="-1"></a><span class="co">#     Args:</span></span>
+<span id="cb12-70"><a href="#cb12-70" aria-hidden="true" tabindex="-1"></a><span class="co">#         sql (str): The input SQL string.</span></span>
+<span id="cb12-71"><a href="#cb12-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-72"><a href="#cb12-72" aria-hidden="true" tabindex="-1"></a><span class="co">#     Returns:</span></span>
+<span id="cb12-73"><a href="#cb12-73" aria-hidden="true" tabindex="-1"></a><span class="co">#         List[str]: A list of CREATE TABLE statements.</span></span>
+<span id="cb12-74"><a href="#cb12-74" aria-hidden="true" tabindex="-1"></a><span class="co">#     """</span></span>
+<span id="cb12-75"><a href="#cb12-75" aria-hidden="true" tabindex="-1"></a><span class="co">#     return [stmt.strip() for stmt in re.split(r"(?i)CREATE\s+OR\s+REPLACE\s+TABLE", sql)[1:]]</span></span>
+<span id="cb12-76"><a href="#cb12-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-77"><a href="#cb12-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-78"><a href="#cb12-78" aria-hidden="true" tabindex="-1"></a><span class="co"># def build_dependency_graph(create_statements: List[str]) -&gt; Dict[str, Set[str]]:</span></span>
+<span id="cb12-79"><a href="#cb12-79" aria-hidden="true" tabindex="-1"></a><span class="co">#     """</span></span>
+<span id="cb12-80"><a href="#cb12-80" aria-hidden="true" tabindex="-1"></a><span class="co">#     Build a graph of table dependencies based on foreign key relationships.</span></span>
+<span id="cb12-81"><a href="#cb12-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-82"><a href="#cb12-82" aria-hidden="true" tabindex="-1"></a><span class="co">#     Args:</span></span>
+<span id="cb12-83"><a href="#cb12-83" aria-hidden="true" tabindex="-1"></a><span class="co">#         create_statements (List[str]): A list of CREATE TABLE statements.</span></span>
+<span id="cb12-84"><a href="#cb12-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-85"><a href="#cb12-85" aria-hidden="true" tabindex="-1"></a><span class="co">#     Returns:</span></span>
+<span id="cb12-86"><a href="#cb12-86" aria-hidden="true" tabindex="-1"></a><span class="co">#         Dict[str, Set[str]]: A dictionary where keys are table names and values</span></span>
+<span id="cb12-87"><a href="#cb12-87" aria-hidden="true" tabindex="-1"></a><span class="co">#                              are sets of tables they depend on.</span></span>
+<span id="cb12-88"><a href="#cb12-88" aria-hidden="true" tabindex="-1"></a><span class="co">#     """</span></span>
+<span id="cb12-89"><a href="#cb12-89" aria-hidden="true" tabindex="-1"></a><span class="co">#     dependencies: Dict[str, Set[str]] = {}</span></span>
+<span id="cb12-90"><a href="#cb12-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-91"><a href="#cb12-91" aria-hidden="true" tabindex="-1"></a><span class="co">#     for statement in create_statements:</span></span>
+<span id="cb12-92"><a href="#cb12-92" aria-hidden="true" tabindex="-1"></a><span class="co">#         match = re.match(r"\s*(\w+)", statement)</span></span>
+<span id="cb12-93"><a href="#cb12-93" aria-hidden="true" tabindex="-1"></a><span class="co">#         if match:</span></span>
+<span id="cb12-94"><a href="#cb12-94" aria-hidden="true" tabindex="-1"></a><span class="co">#             current_table = match.group(1)</span></span>
+<span id="cb12-95"><a href="#cb12-95" aria-hidden="true" tabindex="-1"></a><span class="co">#             dependencies[current_table] = set()</span></span>
+<span id="cb12-96"><a href="#cb12-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-97"><a href="#cb12-97" aria-hidden="true" tabindex="-1"></a><span class="co">#             fk_references = re.findall(r"FOREIGN KEY.*REFERENCES\s+(\w+)", statement, re.IGNORECASE)</span></span>
+<span id="cb12-98"><a href="#cb12-98" aria-hidden="true" tabindex="-1"></a><span class="co">#             for referenced_table in fk_references:</span></span>
+<span id="cb12-99"><a href="#cb12-99" aria-hidden="true" tabindex="-1"></a><span class="co">#                 dependencies[current_table].add(referenced_table)</span></span>
+<span id="cb12-100"><a href="#cb12-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-101"><a href="#cb12-101" aria-hidden="true" tabindex="-1"></a><span class="co">#     return dependencies</span></span>
+<span id="cb12-102"><a href="#cb12-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-103"><a href="#cb12-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-104"><a href="#cb12-104" aria-hidden="true" tabindex="-1"></a><span class="co"># def topological_sort(graph: Dict[str, Set[str]]) -&gt; List[str]:</span></span>
+<span id="cb12-105"><a href="#cb12-105" aria-hidden="true" tabindex="-1"></a><span class="co">#     """</span></span>
+<span id="cb12-106"><a href="#cb12-106" aria-hidden="true" tabindex="-1"></a><span class="co">#     Perform a topological sort on the dependency graph.</span></span>
+<span id="cb12-107"><a href="#cb12-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-108"><a href="#cb12-108" aria-hidden="true" tabindex="-1"></a><span class="co">#     This implementation uses depth-first search to produce a topological ordering.</span></span>
+<span id="cb12-109"><a href="#cb12-109" aria-hidden="true" tabindex="-1"></a><span class="co">#     The result is reversed to get the desired order (tables with no dependencies first).</span></span>
+<span id="cb12-110"><a href="#cb12-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-111"><a href="#cb12-111" aria-hidden="true" tabindex="-1"></a><span class="co">#     Args:</span></span>
+<span id="cb12-112"><a href="#cb12-112" aria-hidden="true" tabindex="-1"></a><span class="co">#         graph (Dict[str, Set[str]]): The dependency graph.</span></span>
+<span id="cb12-113"><a href="#cb12-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-114"><a href="#cb12-114" aria-hidden="true" tabindex="-1"></a><span class="co">#     Returns:</span></span>
+<span id="cb12-115"><a href="#cb12-115" aria-hidden="true" tabindex="-1"></a><span class="co">#         List[str]: A list of table names in topological order.</span></span>
+<span id="cb12-116"><a href="#cb12-116" aria-hidden="true" tabindex="-1"></a><span class="co">#     """</span></span>
+<span id="cb12-117"><a href="#cb12-117" aria-hidden="true" tabindex="-1"></a><span class="co">#     visited: Set[str] = set()</span></span>
+<span id="cb12-118"><a href="#cb12-118" aria-hidden="true" tabindex="-1"></a><span class="co">#     result: List[str] = []</span></span>
+<span id="cb12-119"><a href="#cb12-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-120"><a href="#cb12-120" aria-hidden="true" tabindex="-1"></a><span class="co">#     def dfs(node: str) -&gt; None:</span></span>
+<span id="cb12-121"><a href="#cb12-121" aria-hidden="true" tabindex="-1"></a><span class="co">#         if node in visited:</span></span>
+<span id="cb12-122"><a href="#cb12-122" aria-hidden="true" tabindex="-1"></a><span class="co">#             return</span></span>
+<span id="cb12-123"><a href="#cb12-123" aria-hidden="true" tabindex="-1"></a><span class="co">#         visited.add(node)</span></span>
+<span id="cb12-124"><a href="#cb12-124" aria-hidden="true" tabindex="-1"></a><span class="co">#         for neighbor in graph.get(node, []):</span></span>
+<span id="cb12-125"><a href="#cb12-125" aria-hidden="true" tabindex="-1"></a><span class="co">#             if neighbor not in visited:</span></span>
+<span id="cb12-126"><a href="#cb12-126" aria-hidden="true" tabindex="-1"></a><span class="co">#                 dfs(neighbor)</span></span>
+<span id="cb12-127"><a href="#cb12-127" aria-hidden="true" tabindex="-1"></a><span class="co">#         result.append(node)</span></span>
+<span id="cb12-128"><a href="#cb12-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-129"><a href="#cb12-129" aria-hidden="true" tabindex="-1"></a><span class="co">#     for node in graph:</span></span>
+<span id="cb12-130"><a href="#cb12-130" aria-hidden="true" tabindex="-1"></a><span class="co">#         if node not in visited:</span></span>
+<span id="cb12-131"><a href="#cb12-131" aria-hidden="true" tabindex="-1"></a><span class="co">#             dfs(node)</span></span>
+<span id="cb12-132"><a href="#cb12-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-133"><a href="#cb12-133" aria-hidden="true" tabindex="-1"></a><span class="co">#     return result  # No need to reverse, this is already in the desired order</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-12" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># SCHEMA = Path("../sql/create_cb_experiment_tables_ddb.sql")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-13" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># # | echo: false</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co"># try:</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co">#     table_order = infer_table_order(str(SCHEMA))</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co">#     print("Inferred table order (top-level first):", table_order)</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co"># except (FileNotFoundError, ValueError) as e:</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co">#     print(f"Error: {e}")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-14" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> copy_database_to_motherduck(source_db_path: <span class="bu">str</span>, md_db_name: <span class="bu">str</span>, table_order: Optional[List[<span class="bu">str</span>]] <span class="op">=</span> <span class="va">None</span>):</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    conn <span class="op">=</span> duckdb.<span class="ex">connect</span>(<span class="st">":memory:"</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">'duckdb.connect(":memory:")'</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    load_dotenv()</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    md_token <span class="op">=</span> os.getenv(<span class="st">"MD_TOKEN"</span>)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    os.environ[<span class="st">"motherduck_token"</span>] <span class="op">=</span> md_token</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> md_token:</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"MotherDuck token not found in .env file"</span>)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"`motherduck_token` environment variable set..."</span>)</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"ATTACH 'md:';"</span>)</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>    conn.sql(<span class="st">"ATTACH 'md:';"</span>)</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Attach the source database</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"ATTACH '</span><span class="sc">{</span>source_db_path<span class="sc">}</span><span class="ss">' AS local_source_db"</span>)</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>        conn.execute(<span class="ss">f"ATTACH '</span><span class="sc">{</span>source_db_path<span class="sc">}</span><span class="ss">' AS local_source_db"</span>)</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"USE 'local_source_db'"</span>)</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>        conn.execute(<span class="st">"USE 'local_source_db'"</span>)</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Get the list of tables and views from the source database</span></span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>        tables_and_views <span class="op">=</span> conn.execute(<span class="st">"""</span></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a><span class="st">            SELECT table_name, table_type</span></span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a><span class="st">            FROM information_schema.tables</span></span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a><span class="st">            WHERE table_schema = 'main'</span></span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a><span class="st">        """</span>).fetchall()</span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Create a dictionary to store table types</span></span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>        table_types <span class="op">=</span> {name: <span class="bu">type</span> <span class="cf">for</span> name, <span class="bu">type</span> <span class="kw">in</span> tables_and_views}</span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>        <span class="co"># If table_order is not provided, use all tables and views in alphabetical order</span></span>
+<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> table_order <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a>            table_order <span class="op">=</span> <span class="bu">sorted</span>(table_types.keys())</span>
+<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Create the new database</span></span>
+<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"CREATE OR REPLACE DATABASE </span><span class="sc">{</span>md_db_name<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a>        conn.execute(<span class="ss">f"CREATE OR REPLACE DATABASE </span><span class="sc">{</span>md_db_name<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-43"><a href="#cb15-43" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Copy tables and views in the specified order</span></span>
+<span id="cb15-44"><a href="#cb15-44" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> table_name <span class="kw">in</span> table_order:</span>
+<span id="cb15-45"><a href="#cb15-45" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> table_name <span class="kw">not</span> <span class="kw">in</span> table_types:</span>
+<span id="cb15-46"><a href="#cb15-46" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"Warning: </span><span class="sc">{</span>table_name<span class="sc">}</span><span class="ss"> not found in the source database. Skipping."</span>)</span>
+<span id="cb15-47"><a href="#cb15-47" aria-hidden="true" tabindex="-1"></a>                <span class="cf">continue</span></span>
+<span id="cb15-48"><a href="#cb15-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-49"><a href="#cb15-49" aria-hidden="true" tabindex="-1"></a>            table_type <span class="op">=</span> table_types[table_name]</span>
+<span id="cb15-50"><a href="#cb15-50" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> table_type <span class="op">==</span> <span class="st">'BASE TABLE'</span>:</span>
+<span id="cb15-51"><a href="#cb15-51" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"Copying table: </span><span class="sc">{</span>table_name<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb15-52"><a href="#cb15-52" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"CREATE TABLE </span><span class="sc">{</span>md_db_name<span class="sc">}</span><span class="ss">.</span><span class="sc">{</span>table_name<span class="sc">}</span><span class="ss"> AS SELECT * FROM local_source_db.</span><span class="sc">{</span>table_name<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb15-53"><a href="#cb15-53" aria-hidden="true" tabindex="-1"></a>                conn.execute(<span class="ss">f"CREATE TABLE </span><span class="sc">{</span>md_db_name<span class="sc">}</span><span class="ss">.</span><span class="sc">{</span>table_name<span class="sc">}</span><span class="ss"> AS SELECT * FROM local_source_db.</span><span class="sc">{</span>table_name<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb15-54"><a href="#cb15-54" aria-hidden="true" tabindex="-1"></a>            <span class="cf">elif</span> table_type <span class="op">==</span> <span class="st">'VIEW'</span>:</span>
+<span id="cb15-55"><a href="#cb15-55" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"Copying view: </span><span class="sc">{</span>table_name<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb15-56"><a href="#cb15-56" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"SELECT sql FROM duckdb_views() WHERE view_name = '</span><span class="sc">{</span>table_name<span class="sc">}</span><span class="ss">'"</span>)</span>
+<span id="cb15-57"><a href="#cb15-57" aria-hidden="true" tabindex="-1"></a>                view_definition <span class="op">=</span> conn.execute(<span class="ss">f"SELECT sql FROM duckdb_views() WHERE view_name = '</span><span class="sc">{</span>table_name<span class="sc">}</span><span class="ss">'"</span>).fetchone()[<span class="dv">0</span>]</span>
+<span id="cb15-58"><a href="#cb15-58" aria-hidden="true" tabindex="-1"></a>                <span class="co"># Remove the 'CREATE VIEW' part and the view name from the definition</span></span>
+<span id="cb15-59"><a href="#cb15-59" aria-hidden="true" tabindex="-1"></a>                view_definition <span class="op">=</span> view_definition.split(<span class="st">' AS '</span>, <span class="dv">1</span>)[<span class="dv">1</span>]</span>
+<span id="cb15-60"><a href="#cb15-60" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"CREATE OR REPLACE VIEW </span><span class="sc">{</span>table_name<span class="sc">}</span><span class="ss"> AS </span><span class="sc">{</span>view_definition<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb15-61"><a href="#cb15-61" aria-hidden="true" tabindex="-1"></a>                conn.execute(<span class="ss">f"CREATE OR REPLACE VIEW </span><span class="sc">{</span>table_name<span class="sc">}</span><span class="ss"> AS </span><span class="sc">{</span>view_definition<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb15-62"><a href="#cb15-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-63"><a href="#cb15-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-64"><a href="#cb15-64" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">INFO: Database '</span><span class="sc">{</span>md_db_name<span class="sc">}</span><span class="ss">' created and populated successfully."</span>)</span>
+<span id="cb15-65"><a href="#cb15-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-66"><a href="#cb15-66" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</span>
+<span id="cb15-67"><a href="#cb15-67" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"ERROR: An error occurred: </span><span class="sc">{</span><span class="bu">str</span>(e)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb15-68"><a href="#cb15-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-69"><a href="#cb15-69" aria-hidden="true" tabindex="-1"></a>    <span class="cf">finally</span>:</span>
+<span id="cb15-70"><a href="#cb15-70" aria-hidden="true" tabindex="-1"></a>        conn.close()</span>
+<span id="cb15-71"><a href="#cb15-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-72"><a href="#cb15-72" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> md_db_name</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-15" class="cell" data-execution_count="15">
 <div class="cell-output cell-output-stdout">
 <pre><code>duckdb.connect(":memory:")
 `motherduck_token` environment variable set...
@@ -248,118 +758,403 @@ ATTACH 'md:';</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
-{"model_id":"c2aacc6530a6406d9bc58b61525e9755","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
+{"model_id":"69a2cf3b3fcb4d5abbe8eb3f9b42cd08","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>ATTACH '../data/Experiments_CB_2023_Q4.ddb' AS local_source_db
 USE 'local_source_db'
 CREATE OR REPLACE DATABASE Experiments_CB_2023_Q4
-ERROR: An error occurred: MDExternalException: Failed to drop the database because there are still database shares linked to it. Use DROP DATABASE &lt;db_name&gt; CASCADE to drop the database and all associated shares.</code></pre>
+Copying table: ExperimentCBs
+CREATE TABLE Experiments_CB_2023_Q4.ExperimentCBs AS SELECT * FROM local_source_db.ExperimentCBs
+Copying table: TrialCBs
+CREATE TABLE Experiments_CB_2023_Q4.TrialCBs AS SELECT * FROM local_source_db.TrialCBs
+Copying table: ResponseCBs
+CREATE TABLE Experiments_CB_2023_Q4.ResponseCBs AS SELECT * FROM local_source_db.ResponseCBs
+Copying table: EventCBs
+CREATE TABLE Experiments_CB_2023_Q4.EventCBs AS SELECT * FROM local_source_db.EventCBs
+Copying table: Corrections
+CREATE TABLE Experiments_CB_2023_Q4.Corrections AS SELECT * FROM local_source_db.Corrections
+Copying view: CorrectionsSplit
+SELECT sql FROM duckdb_views() WHERE view_name = 'CorrectionsSplit'
+CREATE OR REPLACE VIEW CorrectionsSplit AS SELECT *, main."trim"(unnest(string_to_array(CorrectTable, ','))) AS TableToCorrect, main."trim"(unnest(string_to_array(CorrectField, ','))) AS FieldToCorrect, main."trim"(unnest(string_to_array(CorrectValue, ','))) AS ValueToCorrect FROM Corrections;
+Copying view: CorrectionWithExistingValues
+SELECT sql FROM duckdb_views() WHERE view_name = 'CorrectionWithExistingValues'
+CREATE OR REPLACE VIEW CorrectionWithExistingValues AS SELECT sc.*, CASE  WHEN (((sc.TableToCorrect = 'TrialCBs') AND (sc.FieldToCorrect = 'ResponseType'))) THEN (t.ResponseType) ELSE NULL END AS ExistingResponseType, CASE  WHEN (((sc.TableToCorrect = 'ResponseCBs') AND (sc.FieldToCorrect = 'ResponseTime'))) THEN (r.ResponseTime) ELSE NULL END AS ExistingResponseTime, CASE  WHEN (((sc.TableToCorrect = 'TrialCBs') AND (sc.FieldToCorrect = 'ResponseType'))) THEN (CASE  WHEN ((t.ResponseType = sc.ValueToCorrect)) THEN ('EQUAL') ELSE 'NOT EQUAL' END) WHEN (((sc.TableToCorrect = 'ResponseCBs') AND (sc.FieldToCorrect = 'ResponseTime'))) THEN (CASE  WHEN ((CAST(r.ResponseTime AS VARCHAR) = sc.ValueToCorrect)) THEN ('EQUAL') ELSE 'NOT EQUAL' END) ELSE 'UNKNOWN' END AS ComparisonResult FROM CorrectionsSplit AS sc LEFT JOIN ExperimentCBs AS e ON ((sc.LogFilename = e.LogFileName)) LEFT JOIN TrialCBs AS t ON (((e.ExperimentID = t.ExperimentID) AND (sc.TrialNumber = t.TrialNumber))) LEFT JOIN ResponseCBs AS r ON ((t.TrialID = r.TrialID)) WHERE (((sc.TableToCorrect = 'TrialCBs') AND (sc.FieldToCorrect = 'ResponseType')) OR ((sc.TableToCorrect = 'ResponseCBs') AND (sc.FieldToCorrect = 'ResponseTime')));
+Copying view: ExperimentCBsCorrected
+SELECT sql FROM duckdb_views() WHERE view_name = 'ExperimentCBsCorrected'
+CREATE OR REPLACE VIEW ExperimentCBsCorrected AS WITH NewExperiments AS (SELECT DISTINCT c.Cohort, c.ExperimentDate, c.SessionType, c.SubjectName, c.LogFilename, 'Corrections xlsx: ADD' AS DataSource FROM Corrections AS c LEFT JOIN ExperimentCBs AS e ON ((c.LogFilename = e.LogFileName)) WHERE (e.LogFileName IS NULL)), MaxExperimentID AS (SELECT COALESCE(max(ExperimentID), 0) AS MaxID FROM ExperimentCBs)(SELECT ExperimentID, Cohort, DateTime, SessionType, SubjectName, LogFileName, 'ExperimentCBs' AS DataSource FROM ExperimentCBs) UNION ALL (SELECT (row_number() OVER (ORDER BY LogFilename) + m.MaxID) AS ExperimentID, Cohort, CAST(ExperimentDate AS TIMESTAMP) AS DateTime, SessionType, SubjectName, LogFilename AS LogFileName, DataSource FROM NewExperiments , MaxExperimentID AS m) ORDER BY ExperimentID;
+Copying view: TrialCBsCorrected
+SELECT sql FROM duckdb_views() WHERE view_name = 'TrialCBsCorrected'
+CREATE OR REPLACE VIEW TrialCBsCorrected AS WITH NewTrials AS (SELECT NULL AS TrialID, e.ExperimentID, c.TrialNumber, c.TrialType AS TrialSubType, c.ResponseType, CASE  WHEN (((c.TrialType = 'P') AND (c.ResponseType = 'GO'))) THEN ('positive') WHEN (((c.TrialType = 'N') AND (c.ResponseType = 'NOGO'))) THEN ('negative') ELSE NULL END AS CriterionType, NULL AS CriterionCount, NULL AS TrialStartTime, NULL AS TrialEndTime, 'Added from Corrections' AS CorrectedFlag FROM Corrections AS c INNER JOIN ExperimentCBsCorrected AS e ON ((c.LogFilename = e.LogFileName)) WHERE (e.DataSource = 'Corrections xlsx: ADD')), ExistingTrials AS (SELECT t.TrialID, t.ExperimentID, t.TrialNumber, t.TrialSubType, COALESCE(cs.ValueToCorrect, t.ResponseType) AS ResponseType, t.CriterionType, t.CriterionCount, t.TrialStartTime, t.TrialEndTime, CASE  WHEN ((cs.ValueToCorrect IS NOT NULL)) THEN ('Corrected') ELSE 'Original' END AS CorrectedFlag FROM TrialCBs AS t LEFT JOIN ExperimentCBsCorrected AS e ON ((t.ExperimentID = e.ExperimentID)) LEFT JOIN CorrectionsSplit AS cs ON (((e.LogFileName = cs.LogFilename) AND (t.TrialNumber = cs.TrialNumber) AND (cs.TableToCorrect = 'TrialCBs') AND (cs.FieldToCorrect = 'ResponseType')))), AllTrials AS ((SELECT * FROM ExistingTrials) UNION ALL (SELECT * FROM NewTrials)), TrialsWithCriterionCount AS (SELECT *, sum(CASE  WHEN ((CriterionType IS NOT NULL)) THEN (1) ELSE 0 END) OVER (PARTITION BY ExperimentID, CriterionType ORDER BY TrialNumber ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS CalculatedCriterionCount, row_number() OVER (PARTITION BY ExperimentID ORDER BY TrialNumber) AS RowNum FROM AllTrials)SELECT COALESCE(TrialID, (RowNum + (SELECT max(TrialID) FROM TrialCBs))) AS TrialID, ExperimentID, TrialNumber, TrialSubType, ResponseType, CriterionType, CASE  WHEN ((CriterionType IS NOT NULL)) THEN (CalculatedCriterionCount) ELSE 0 END AS CriterionCount, TrialStartTime, TrialEndTime, CorrectedFlag FROM TrialsWithCriterionCount ORDER BY ExperimentID, TrialNumber;
+Copying view: ResponseCBsCorrected
+SELECT sql FROM duckdb_views() WHERE view_name = 'ResponseCBsCorrected'
+CREATE OR REPLACE VIEW ResponseCBsCorrected AS WITH NewResponses AS (SELECT NULL AS ResponseID, t.TrialID, CAST(c.ResponseTime AS DOUBLE) AS ResponseTime, NULL AS EventDateTime, 'Added from Corrections' AS CorrectedFlag FROM TrialCBsCorrected AS t INNER JOIN ExperimentCBsCorrected AS e ON ((t.ExperimentID = e.ExperimentID)) INNER JOIN Corrections AS c ON (((e.LogFileName = c.LogFilename) AND (t.TrialNumber = c.TrialNumber))) WHERE (e.DataSource = 'Corrections xlsx: ADD')), ExistingResponses AS (SELECT r.ResponseID, r.TrialID, CASE  WHEN (((cs.ValueToCorrect IS NOT NULL) AND (cs.ValueToCorrect != ''))) THEN (CAST(cs.ValueToCorrect AS DOUBLE)) ELSE r.ResponseTime END AS ResponseTime, r.EventDateTime, CASE  WHEN ((cs.ValueToCorrect IS NOT NULL)) THEN ('Corrected') ELSE 'Original' END AS CorrectedFlag FROM ResponseCBs AS r INNER JOIN TrialCBsCorrected AS t ON ((r.TrialID = t.TrialID)) LEFT JOIN ExperimentCBsCorrected AS e ON ((t.ExperimentID = e.ExperimentID)) LEFT JOIN CorrectionsSplit AS cs ON (((e.LogFileName = cs.LogFilename) AND (t.TrialNumber = cs.TrialNumber) AND (cs.TableToCorrect = 'ResponseCBs') AND (cs.FieldToCorrect = 'ResponseTime'))))SELECT COALESCE(ResponseID, (row_number() OVER (ORDER BY TrialID) + (SELECT max(ResponseID) FROM ResponseCBs))) AS ResponseID, TrialID, ResponseTime, EventDateTime, CorrectedFlag FROM ((SELECT * FROM ExistingResponses) UNION ALL (SELECT * FROM NewResponses)) AS AllResponses ORDER BY ResponseID;
+Copying view: EventCBsCorrected
+SELECT sql FROM duckdb_views() WHERE view_name = 'EventCBsCorrected'
+CREATE OR REPLACE VIEW EventCBsCorrected AS WITH NewTrialEvents AS (SELECT t.TrialID, NULL AS EventType, NULL AS EventTime, NULL AS ElapsedTime, 'Added from Corrections' AS CorrectedFlag FROM TrialCBsCorrected AS t WHERE (t.CorrectedFlag = 'Added from Corrections')), ExistingEvents AS (SELECT ev.*, 'Original' AS CorrectedFlag FROM EventCBs AS ev INNER JOIN TrialCBsCorrected AS t ON ((ev.TrialID = t.TrialID)))SELECT COALESCE(ev.EventID, (row_number() OVER (ORDER BY COALESCE(ev.TrialID, nte.TrialID), ev.EventTime) + (SELECT COALESCE(max(EventID), 0) FROM EventCBs))) AS EventID, COALESCE(ev.TrialID, nte.TrialID) AS TrialID, ev.EventType, ev.EventTime, ev.ElapsedTime, COALESCE(ev.CorrectedFlag, nte.CorrectedFlag) AS CorrectedFlag FROM ExistingEvents AS ev FULL JOIN NewTrialEvents AS nte ON ((ev.TrialID = nte.TrialID)) ORDER BY TrialID, ev.EventTime;
+
+INFO: Database 'Experiments_CB_2023_Q4' created and populated successfully.</code></pre>
 </div>
 </div>
-<div id="cell-9" class="cell" data-execution_count="9">
+<div id="cell-16" class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> compare_databases(local_db: <span class="bu">str</span>, md_db: <span class="bu">str</span>, threshold: <span class="bu">float</span> <span class="op">=</span> <span class="fl">1e-8</span>) <span class="op">-&gt;</span> <span class="bu">bool</span>:</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Comparing - LOCAL: </span><span class="sc">{</span>local_db<span class="sc">}</span><span class="ss"> vs MOTHERDUCK: </span><span class="sc">{</span>md_db<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    load_dotenv()</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    md_token <span class="op">=</span> os.getenv(<span class="st">"MD_TOKEN"</span>)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    os.environ[<span class="st">"motherduck_token"</span>] <span class="op">=</span> md_token</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> md_token:</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"MotherDuck token not found in .env file"</span>)</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>    conn_md <span class="op">=</span> duckdb.<span class="ex">connect</span>(<span class="ss">f"md:</span><span class="sc">{</span>md_db<span class="sc">}</span><span class="ss">?motherduck_token=</span><span class="sc">{</span>md_token<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    conn_local <span class="op">=</span> duckdb.<span class="ex">connect</span>(local_db)</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Get tables and views for local database</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>        local_objects <span class="op">=</span> conn_local.execute(<span class="st">"""</span></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a><span class="st">            SELECT table_name, table_type</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a><span class="st">            FROM information_schema.tables</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a><span class="st">            WHERE table_schema = 'main'</span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a><span class="st">            ORDER BY table_type, table_name</span></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a><span class="st">        """</span>).fetchall()</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Get tables and views for MotherDuck database</span></span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>        md_objects <span class="op">=</span> conn_md.execute(<span class="st">"""</span></span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a><span class="st">            SELECT table_name, table_type</span></span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a><span class="st">            FROM information_schema.tables</span></span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a><span class="st">            WHERE table_schema = 'main'</span></span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a><span class="st">            ORDER BY table_type, table_name</span></span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a><span class="st">        """</span>).fetchall()</span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Print local database objects</span></span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Local database objects:"</span>)</span>
+<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"Tables:"</span>)</span>
+<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> obj <span class="kw">in</span> local_objects:</span>
+<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> obj[<span class="dv">1</span>] <span class="op">==</span> <span class="st">'BASE TABLE'</span>:</span>
+<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"  - </span><span class="sc">{</span>obj[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"Views:"</span>)</span>
+<span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> obj <span class="kw">in</span> local_objects:</span>
+<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> obj[<span class="dv">1</span>] <span class="op">==</span> <span class="st">'VIEW'</span>:</span>
+<span id="cb18-39"><a href="#cb18-39" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"  - </span><span class="sc">{</span>obj[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb18-40"><a href="#cb18-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-41"><a href="#cb18-41" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Print MotherDuck database objects</span></span>
+<span id="cb18-42"><a href="#cb18-42" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">MotherDuck database objects:"</span>)</span>
+<span id="cb18-43"><a href="#cb18-43" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"Tables:"</span>)</span>
+<span id="cb18-44"><a href="#cb18-44" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> obj <span class="kw">in</span> md_objects:</span>
+<span id="cb18-45"><a href="#cb18-45" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> obj[<span class="dv">1</span>] <span class="op">==</span> <span class="st">'BASE TABLE'</span>:</span>
+<span id="cb18-46"><a href="#cb18-46" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"  - </span><span class="sc">{</span>obj[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb18-47"><a href="#cb18-47" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"Views:"</span>)</span>
+<span id="cb18-48"><a href="#cb18-48" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> obj <span class="kw">in</span> md_objects:</span>
+<span id="cb18-49"><a href="#cb18-49" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> obj[<span class="dv">1</span>] <span class="op">==</span> <span class="st">'VIEW'</span>:</span>
+<span id="cb18-50"><a href="#cb18-50" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"  - </span><span class="sc">{</span>obj[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb18-51"><a href="#cb18-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-52"><a href="#cb18-52" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">len</span>(local_objects) <span class="op">!=</span> <span class="bu">len</span>(md_objects):</span>
+<span id="cb18-53"><a href="#cb18-53" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Number of tables/views mismatch. Local: </span><span class="sc">{</span><span class="bu">len</span>(local_objects)<span class="sc">}</span><span class="ss">, MotherDuck: </span><span class="sc">{</span><span class="bu">len</span>(md_objects)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb18-54"><a href="#cb18-54" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb18-55"><a href="#cb18-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-56"><a href="#cb18-56" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Comparison logic</span></span>
+<span id="cb18-57"><a href="#cb18-57" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> table, table_type <span class="kw">in</span> local_objects:</span>
+<span id="cb18-58"><a href="#cb18-58" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Comparing </span><span class="sc">{</span>table_type<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>table<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb18-59"><a href="#cb18-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-60"><a href="#cb18-60" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> table_type <span class="op">==</span> <span class="st">'BASE TABLE'</span>:</span>
+<span id="cb18-61"><a href="#cb18-61" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="kw">not</span> compare_schema(conn_local, conn_md, table):</span>
+<span id="cb18-62"><a href="#cb18-62" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb18-63"><a href="#cb18-63" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="kw">not</span> compare_row_counts(conn_local, conn_md, table):</span>
+<span id="cb18-64"><a href="#cb18-64" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb18-65"><a href="#cb18-65" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="kw">not</span> compare_data(conn_local, conn_md, table, threshold):</span>
+<span id="cb18-66"><a href="#cb18-66" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb18-67"><a href="#cb18-67" aria-hidden="true" tabindex="-1"></a>            <span class="cf">elif</span> table_type <span class="op">==</span> <span class="st">'VIEW'</span>:</span>
+<span id="cb18-68"><a href="#cb18-68" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="kw">not</span> compare_view_definitions(conn_local, conn_md, table):</span>
+<span id="cb18-69"><a href="#cb18-69" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb18-70"><a href="#cb18-70" aria-hidden="true" tabindex="-1"></a>                <span class="co"># Optionally, you can still compare the data in views</span></span>
+<span id="cb18-71"><a href="#cb18-71" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="kw">not</span> compare_row_counts(conn_local, conn_md, table):</span>
+<span id="cb18-72"><a href="#cb18-72" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb18-73"><a href="#cb18-73" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="kw">not</span> compare_data(conn_local, conn_md, table, threshold):</span>
+<span id="cb18-74"><a href="#cb18-74" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb18-75"><a href="#cb18-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-76"><a href="#cb18-76" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">All tables, views, and data match!"</span>)</span>
+<span id="cb18-77"><a href="#cb18-77" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb18-78"><a href="#cb18-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-79"><a href="#cb18-79" aria-hidden="true" tabindex="-1"></a>    <span class="cf">finally</span>:</span>
+<span id="cb18-80"><a href="#cb18-80" aria-hidden="true" tabindex="-1"></a>        conn_local.close()</span>
+<span id="cb18-81"><a href="#cb18-81" aria-hidden="true" tabindex="-1"></a>        conn_md.close()</span>
+<span id="cb18-82"><a href="#cb18-82" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb18-83"><a href="#cb18-83" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> compare_schema(conn_local: duckdb.DuckDBPyConnection, conn_md: duckdb.DuckDBPyConnection, table_name: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="bu">bool</span>:</span>
+<span id="cb18-84"><a href="#cb18-84" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb18-85"><a href="#cb18-85" aria-hidden="true" tabindex="-1"></a><span class="co">    Compare the schema of a table between local and MotherDuck databases.</span></span>
+<span id="cb18-86"><a href="#cb18-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-87"><a href="#cb18-87" aria-hidden="true" tabindex="-1"></a><span class="co">    Args:</span></span>
+<span id="cb18-88"><a href="#cb18-88" aria-hidden="true" tabindex="-1"></a><span class="co">        conn_local (duckdb.DuckDBPyConnection): Connection to the local database.</span></span>
+<span id="cb18-89"><a href="#cb18-89" aria-hidden="true" tabindex="-1"></a><span class="co">        conn_md (duckdb.DuckDBPyConnection): Connection to the MotherDuck database.</span></span>
+<span id="cb18-90"><a href="#cb18-90" aria-hidden="true" tabindex="-1"></a><span class="co">        table_name (str): Name of the table to compare.</span></span>
+<span id="cb18-91"><a href="#cb18-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-92"><a href="#cb18-92" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb18-93"><a href="#cb18-93" aria-hidden="true" tabindex="-1"></a><span class="co">        bool: True if schemas match, False otherwise.</span></span>
+<span id="cb18-94"><a href="#cb18-94" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb18-95"><a href="#cb18-95" aria-hidden="true" tabindex="-1"></a>    schema_local <span class="op">=</span> conn_local.execute(<span class="ss">f"DESCRIBE </span><span class="sc">{</span>table_name<span class="sc">}</span><span class="ss">"</span>).fetchall()</span>
+<span id="cb18-96"><a href="#cb18-96" aria-hidden="true" tabindex="-1"></a>    schema_md <span class="op">=</span> conn_md.execute(<span class="ss">f"DESCRIBE </span><span class="sc">{</span>table_name<span class="sc">}</span><span class="ss">"</span>).fetchall()</span>
+<span id="cb18-97"><a href="#cb18-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-98"><a href="#cb18-98" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Remove any 'generated always' columns that might be present in views</span></span>
+<span id="cb18-99"><a href="#cb18-99" aria-hidden="true" tabindex="-1"></a>    schema_local <span class="op">=</span> [col <span class="cf">for</span> col <span class="kw">in</span> schema_local <span class="cf">if</span> <span class="st">'GENERATED ALWAYS'</span> <span class="kw">not</span> <span class="kw">in</span> col[<span class="dv">5</span>]]</span>
+<span id="cb18-100"><a href="#cb18-100" aria-hidden="true" tabindex="-1"></a>    schema_md <span class="op">=</span> [col <span class="cf">for</span> col <span class="kw">in</span> schema_md <span class="cf">if</span> <span class="st">'GENERATED ALWAYS'</span> <span class="kw">not</span> <span class="kw">in</span> col[<span class="dv">5</span>]]</span>
+<span id="cb18-101"><a href="#cb18-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-102"><a href="#cb18-102" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> schema_local <span class="op">!=</span> schema_md:</span>
+<span id="cb18-103"><a href="#cb18-103" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Schema mismatch for table/view </span><span class="sc">{</span>table_name<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb18-104"><a href="#cb18-104" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"Local schema:"</span>)</span>
+<span id="cb18-105"><a href="#cb18-105" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(pd.DataFrame(schema_local, columns<span class="op">=</span>[<span class="st">"Column"</span>, <span class="st">"Type"</span>, <span class="st">"Null"</span>, <span class="st">"Key"</span>, <span class="st">"Default"</span>, <span class="st">"Extra"</span>]))</span>
+<span id="cb18-106"><a href="#cb18-106" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">MotherDuck schema:"</span>)</span>
+<span id="cb18-107"><a href="#cb18-107" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(pd.DataFrame(schema_md, columns<span class="op">=</span>[<span class="st">"Column"</span>, <span class="st">"Type"</span>, <span class="st">"Null"</span>, <span class="st">"Key"</span>, <span class="st">"Default"</span>, <span class="st">"Extra"</span>]))</span>
+<span id="cb18-108"><a href="#cb18-108" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb18-109"><a href="#cb18-109" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb18-110"><a href="#cb18-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-111"><a href="#cb18-111" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> compare_row_counts(conn_local: duckdb.DuckDBPyConnection, conn_md: duckdb.DuckDBPyConnection, table_name: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="bu">bool</span>:</span>
+<span id="cb18-112"><a href="#cb18-112" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb18-113"><a href="#cb18-113" aria-hidden="true" tabindex="-1"></a><span class="co">    Compare the row counts of a table between local and MotherDuck databases.</span></span>
+<span id="cb18-114"><a href="#cb18-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-115"><a href="#cb18-115" aria-hidden="true" tabindex="-1"></a><span class="co">    Args:</span></span>
+<span id="cb18-116"><a href="#cb18-116" aria-hidden="true" tabindex="-1"></a><span class="co">        conn_local (duckdb.DuckDBPyConnection): Connection to the local database.</span></span>
+<span id="cb18-117"><a href="#cb18-117" aria-hidden="true" tabindex="-1"></a><span class="co">        conn_md (duckdb.DuckDBPyConnection): Connection to the MotherDuck database.</span></span>
+<span id="cb18-118"><a href="#cb18-118" aria-hidden="true" tabindex="-1"></a><span class="co">        table_name (str): Name of the table to compare.</span></span>
+<span id="cb18-119"><a href="#cb18-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-120"><a href="#cb18-120" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb18-121"><a href="#cb18-121" aria-hidden="true" tabindex="-1"></a><span class="co">        bool: True if row counts match, False otherwise.</span></span>
+<span id="cb18-122"><a href="#cb18-122" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb18-123"><a href="#cb18-123" aria-hidden="true" tabindex="-1"></a>    count_local <span class="op">=</span> conn_local.execute(<span class="ss">f"SELECT COUNT(*) FROM </span><span class="sc">{</span>table_name<span class="sc">}</span><span class="ss">"</span>).fetchone()[<span class="dv">0</span>]</span>
+<span id="cb18-124"><a href="#cb18-124" aria-hidden="true" tabindex="-1"></a>    count_md <span class="op">=</span> conn_md.execute(<span class="ss">f"SELECT COUNT(*) FROM </span><span class="sc">{</span>table_name<span class="sc">}</span><span class="ss">"</span>).fetchone()[<span class="dv">0</span>]</span>
+<span id="cb18-125"><a href="#cb18-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-126"><a href="#cb18-126" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> count_local <span class="op">!=</span> count_md:</span>
+<span id="cb18-127"><a href="#cb18-127" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Row count mismatch for table/view </span><span class="sc">{</span>table_name<span class="sc">}</span><span class="ss">. Local: </span><span class="sc">{</span>count_local<span class="sc">}</span><span class="ss">, MotherDuck: </span><span class="sc">{</span>count_md<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb18-128"><a href="#cb18-128" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb18-129"><a href="#cb18-129" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb18-130"><a href="#cb18-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-131"><a href="#cb18-131" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> compare_data(conn_local: duckdb.DuckDBPyConnection, conn_md: duckdb.DuckDBPyConnection, table_name: <span class="bu">str</span>, threshold: <span class="bu">float</span> <span class="op">=</span> <span class="fl">1e-8</span>) <span class="op">-&gt;</span> <span class="bu">bool</span>:</span>
+<span id="cb18-132"><a href="#cb18-132" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb18-133"><a href="#cb18-133" aria-hidden="true" tabindex="-1"></a><span class="co">    Compare the data of a table between local and MotherDuck databases.</span></span>
+<span id="cb18-134"><a href="#cb18-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-135"><a href="#cb18-135" aria-hidden="true" tabindex="-1"></a><span class="co">    Args:</span></span>
+<span id="cb18-136"><a href="#cb18-136" aria-hidden="true" tabindex="-1"></a><span class="co">        conn_local (duckdb.DuckDBPyConnection): Connection to the local database.</span></span>
+<span id="cb18-137"><a href="#cb18-137" aria-hidden="true" tabindex="-1"></a><span class="co">        conn_md (duckdb.DuckDBPyConnection): Connection to the MotherDuck database.</span></span>
+<span id="cb18-138"><a href="#cb18-138" aria-hidden="true" tabindex="-1"></a><span class="co">        table_name (str): Name of the table to compare.</span></span>
+<span id="cb18-139"><a href="#cb18-139" aria-hidden="true" tabindex="-1"></a><span class="co">        threshold (float): Threshold for floating point comparisons.</span></span>
+<span id="cb18-140"><a href="#cb18-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-141"><a href="#cb18-141" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb18-142"><a href="#cb18-142" aria-hidden="true" tabindex="-1"></a><span class="co">        bool: True if data matches, False otherwise.</span></span>
+<span id="cb18-143"><a href="#cb18-143" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb18-144"><a href="#cb18-144" aria-hidden="true" tabindex="-1"></a>    schema_local <span class="op">=</span> conn_local.execute(<span class="ss">f"DESCRIBE </span><span class="sc">{</span>table_name<span class="sc">}</span><span class="ss">"</span>).fetchall()</span>
+<span id="cb18-145"><a href="#cb18-145" aria-hidden="true" tabindex="-1"></a>    column_names <span class="op">=</span> [col[<span class="dv">0</span>] <span class="cf">for</span> col <span class="kw">in</span> schema_local]</span>
+<span id="cb18-146"><a href="#cb18-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-147"><a href="#cb18-147" aria-hidden="true" tabindex="-1"></a>    order_by_clause <span class="op">=</span> <span class="ss">f"ORDER BY </span><span class="sc">{</span><span class="st">', '</span><span class="sc">.</span>join(column_names)<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb18-148"><a href="#cb18-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-149"><a href="#cb18-149" aria-hidden="true" tabindex="-1"></a>    data_local <span class="op">=</span> conn_local.execute(<span class="ss">f"SELECT * FROM </span><span class="sc">{</span>table_name<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>order_by_clause<span class="sc">}</span><span class="ss">"</span>).fetchall()</span>
+<span id="cb18-150"><a href="#cb18-150" aria-hidden="true" tabindex="-1"></a>    data_md <span class="op">=</span> conn_md.execute(<span class="ss">f"SELECT * FROM </span><span class="sc">{</span>table_name<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>order_by_clause<span class="sc">}</span><span class="ss">"</span>).fetchall()</span>
+<span id="cb18-151"><a href="#cb18-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-152"><a href="#cb18-152" aria-hidden="true" tabindex="-1"></a>    df_local <span class="op">=</span> pd.DataFrame(data_local, columns<span class="op">=</span>column_names)</span>
+<span id="cb18-153"><a href="#cb18-153" aria-hidden="true" tabindex="-1"></a>    df_md <span class="op">=</span> pd.DataFrame(data_md, columns<span class="op">=</span>column_names)</span>
+<span id="cb18-154"><a href="#cb18-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-155"><a href="#cb18-155" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> df_local.equals(df_md):</span>
+<span id="cb18-156"><a href="#cb18-156" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Data mismatch for table/view </span><span class="sc">{</span>table_name<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb18-157"><a href="#cb18-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-158"><a href="#cb18-158" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> column <span class="kw">in</span> df_local.columns:</span>
+<span id="cb18-159"><a href="#cb18-159" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="kw">not</span> df_local[column].equals(df_md[column]):</span>
+<span id="cb18-160"><a href="#cb18-160" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"</span><span class="ch">\n</span><span class="ss">Mismatch in column: </span><span class="sc">{</span>column<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb18-161"><a href="#cb18-161" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"Local dtype: </span><span class="sc">{</span>df_local[column]<span class="sc">.</span>dtype<span class="sc">}</span><span class="ss">, MotherDuck dtype: </span><span class="sc">{</span>df_md[column]<span class="sc">.</span>dtype<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb18-162"><a href="#cb18-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-163"><a href="#cb18-163" aria-hidden="true" tabindex="-1"></a>                <span class="co"># Check for floating point differences</span></span>
+<span id="cb18-164"><a href="#cb18-164" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> np.issubdtype(df_local[column].dtype, np.number) <span class="kw">and</span> np.issubdtype(df_md[column].dtype, np.number):</span>
+<span id="cb18-165"><a href="#cb18-165" aria-hidden="true" tabindex="-1"></a>                    max_diff <span class="op">=</span> (df_local[column] <span class="op">-</span> df_md[column]).<span class="bu">abs</span>().<span class="bu">max</span>()</span>
+<span id="cb18-166"><a href="#cb18-166" aria-hidden="true" tabindex="-1"></a>                    <span class="bu">print</span>(<span class="ss">f"Maximum absolute difference: </span><span class="sc">{</span>max_diff<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb18-167"><a href="#cb18-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-168"><a href="#cb18-168" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">if</span> max_diff <span class="op">&lt;</span> threshold:</span>
+<span id="cb18-169"><a href="#cb18-169" aria-hidden="true" tabindex="-1"></a>                        <span class="bu">print</span>(<span class="st">"Difference likely due to floating point precision"</span>)</span>
+<span id="cb18-170"><a href="#cb18-170" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">else</span>:</span>
+<span id="cb18-171"><a href="#cb18-171" aria-hidden="true" tabindex="-1"></a>                        <span class="bu">print</span>(<span class="st">"First few mismatching rows:"</span>)</span>
+<span id="cb18-172"><a href="#cb18-172" aria-hidden="true" tabindex="-1"></a>                        mismatch <span class="op">=</span> <span class="op">~</span>np.isclose(df_local[column], df_md[column], equal_nan<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb18-173"><a href="#cb18-173" aria-hidden="true" tabindex="-1"></a>                        <span class="bu">print</span>(pd.concat([df_local[mismatch], df_md[mismatch]], axis<span class="op">=</span><span class="dv">1</span>, keys<span class="op">=</span>[<span class="st">"Local"</span>, <span class="st">"MotherDuck"</span>]).head())</span>
+<span id="cb18-174"><a href="#cb18-174" aria-hidden="true" tabindex="-1"></a>                <span class="cf">else</span>:</span>
+<span id="cb18-175"><a href="#cb18-175" aria-hidden="true" tabindex="-1"></a>                    <span class="bu">print</span>(<span class="st">"First few mismatching rows:"</span>)</span>
+<span id="cb18-176"><a href="#cb18-176" aria-hidden="true" tabindex="-1"></a>                    mismatch <span class="op">=</span> df_local[column] <span class="op">!=</span> df_md[column]</span>
+<span id="cb18-177"><a href="#cb18-177" aria-hidden="true" tabindex="-1"></a>                    <span class="bu">print</span>(pd.concat([df_local[mismatch], df_md[mismatch]], axis<span class="op">=</span><span class="dv">1</span>, keys<span class="op">=</span>[<span class="st">"Local"</span>, <span class="st">"MotherDuck"</span>]).head())</span>
+<span id="cb18-178"><a href="#cb18-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-179"><a href="#cb18-179" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Check for rows that exist in one dataset but not the other</span></span>
+<span id="cb18-180"><a href="#cb18-180" aria-hidden="true" tabindex="-1"></a>        merge_result <span class="op">=</span> pd.merge(df_local, df_md, how<span class="op">=</span><span class="st">"outer"</span>, indicator<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb18-181"><a href="#cb18-181" aria-hidden="true" tabindex="-1"></a>        local_only <span class="op">=</span> merge_result[merge_result[<span class="st">"_merge"</span>] <span class="op">==</span> <span class="st">"left_only"</span>]</span>
+<span id="cb18-182"><a href="#cb18-182" aria-hidden="true" tabindex="-1"></a>        md_only <span class="op">=</span> merge_result[merge_result[<span class="st">"_merge"</span>] <span class="op">==</span> <span class="st">"right_only"</span>]</span>
+<span id="cb18-183"><a href="#cb18-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-184"><a href="#cb18-184" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> local_only.empty:</span>
+<span id="cb18-185"><a href="#cb18-185" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Rows in Local but not in MotherDuck:"</span>)</span>
+<span id="cb18-186"><a href="#cb18-186" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(local_only.head())</span>
+<span id="cb18-187"><a href="#cb18-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-188"><a href="#cb18-188" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">not</span> md_only.empty:</span>
+<span id="cb18-189"><a href="#cb18-189" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Rows in MotherDuck but not in Local:"</span>)</span>
+<span id="cb18-190"><a href="#cb18-190" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(md_only.head())</span>
+<span id="cb18-191"><a href="#cb18-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-192"><a href="#cb18-192" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> local_only.empty <span class="kw">and</span> md_only.empty:</span>
+<span id="cb18-193"><a href="#cb18-193" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">No rows found exclusively in either database. The mismatch might be due to data type or precision differences."</span>)</span>
+<span id="cb18-194"><a href="#cb18-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-195"><a href="#cb18-195" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb18-196"><a href="#cb18-196" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">True</span></span>
+<span id="cb18-197"><a href="#cb18-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-198"><a href="#cb18-198" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> compare_view_definitions(conn_local: duckdb.DuckDBPyConnection, conn_md: duckdb.DuckDBPyConnection, view_name: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="bu">bool</span>:</span>
+<span id="cb18-199"><a href="#cb18-199" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb18-200"><a href="#cb18-200" aria-hidden="true" tabindex="-1"></a><span class="co">    Compare the view definitions between local and MotherDuck databases.</span></span>
+<span id="cb18-201"><a href="#cb18-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-202"><a href="#cb18-202" aria-hidden="true" tabindex="-1"></a><span class="co">    Args:</span></span>
+<span id="cb18-203"><a href="#cb18-203" aria-hidden="true" tabindex="-1"></a><span class="co">        conn_local (duckdb.DuckDBPyConnection): Connection to the local database.</span></span>
+<span id="cb18-204"><a href="#cb18-204" aria-hidden="true" tabindex="-1"></a><span class="co">        conn_md (duckdb.DuckDBPyConnection): Connection to the MotherDuck database.</span></span>
+<span id="cb18-205"><a href="#cb18-205" aria-hidden="true" tabindex="-1"></a><span class="co">        view_name (str): Name of the view to compare.</span></span>
+<span id="cb18-206"><a href="#cb18-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-207"><a href="#cb18-207" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb18-208"><a href="#cb18-208" aria-hidden="true" tabindex="-1"></a><span class="co">        bool: True if view definitions match, False otherwise.</span></span>
+<span id="cb18-209"><a href="#cb18-209" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb18-210"><a href="#cb18-210" aria-hidden="true" tabindex="-1"></a>    view_def_local <span class="op">=</span> conn_local.execute(<span class="ss">f"SELECT sql FROM duckdb_views() WHERE view_name = '</span><span class="sc">{</span>view_name<span class="sc">}</span><span class="ss">'"</span>).fetchone()[<span class="dv">0</span>]</span>
+<span id="cb18-211"><a href="#cb18-211" aria-hidden="true" tabindex="-1"></a>    view_def_md <span class="op">=</span> conn_md.execute(<span class="ss">f"SELECT sql FROM duckdb_views() WHERE view_name = '</span><span class="sc">{</span>view_name<span class="sc">}</span><span class="ss">'"</span>).fetchone()[<span class="dv">0</span>]</span>
+<span id="cb18-212"><a href="#cb18-212" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-213"><a href="#cb18-213" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Remove 'CREATE VIEW' part and view name from both definitions</span></span>
+<span id="cb18-214"><a href="#cb18-214" aria-hidden="true" tabindex="-1"></a>    view_def_local <span class="op">=</span> view_def_local.split(<span class="st">' AS '</span>, <span class="dv">1</span>)[<span class="dv">1</span>]</span>
+<span id="cb18-215"><a href="#cb18-215" aria-hidden="true" tabindex="-1"></a>    view_def_md <span class="op">=</span> view_def_md.split(<span class="st">' AS '</span>, <span class="dv">1</span>)[<span class="dv">1</span>]</span>
+<span id="cb18-216"><a href="#cb18-216" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb18-217"><a href="#cb18-217" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> view_def_local <span class="op">!=</span> view_def_md:</span>
+<span id="cb18-218"><a href="#cb18-218" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"View definition mismatch for view </span><span class="sc">{</span>view_name<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb18-219"><a href="#cb18-219" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"Local view definition:"</span>)</span>
+<span id="cb18-220"><a href="#cb18-220" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(view_def_local)</span>
+<span id="cb18-221"><a href="#cb18-221" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">MotherDuck view definition:"</span>)</span>
+<span id="cb18-222"><a href="#cb18-222" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(view_def_md)</span>
+<span id="cb18-223"><a href="#cb18-223" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">False</span></span>
+<span id="cb18-224"><a href="#cb18-224" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">True</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-17" class="cell" data-execution_count="17">
 <div class="cell-output cell-output-stdout">
 <pre><code>Comparing - LOCAL: ../data/Experiments_CB_2023_Q4.ddb vs MOTHERDUCK: Experiments_CB_2023_Q4
 
-Comparing table: EventCBs
+Local database objects:
+Tables:
+  - Corrections
+  - EventCBs
+  - ExperimentCBs
+  - ResponseCBs
+  - TrialCBs
+Views:
+  - CorrectionWithExistingValues
+  - CorrectionsSplit
+  - EventCBsCorrected
+  - ExperimentCBsCorrected
+  - ResponseCBsCorrected
+  - TrialCBsCorrected
 
-Comparing table: ExperimentCBs
+MotherDuck database objects:
+Tables:
+  - Activity
+  - Corrections
+  - Demographics
+  - EventCBs
+  - Events
+  - Events
+  - ExperimentCBs
+  - Experiments
+  - Experiments
+  - Labels
+  - Patient
+  - Physiology
+  - ResponseCBs
+  - Sleep
+  - TrialCBs
+  - Trials
+  - Trials
+  - raw_titanic
+Views:
+  - databases
 
-Comparing table: ResponseCBs
-
-Comparing table: TrialCBs
-
-All tables and data match!
-Databases are identical: True</code></pre>
+Number of tables/views mismatch. Local: 11, MotherDuck: 19
+Databases are identical: False</code></pre>
 </div>
 </div>
 <section id="sharing-of-motherduck-copy-of-database" class="level3">
 <h3 class="anchored" data-anchor-id="sharing-of-motherduck-copy-of-database">Sharing of MotherDuck copy of database</h3>
 <p>Example of accessing the MD</p>
-<div id="cell-14" class="cell" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>MD_SHARE <span class="op">=</span> <span class="st">"md:_share/Experiments_CB_2023_Q4/4bb7c820-c750-460e-8ff0-f16a7bc2a1a7"</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the MotherDuck token from environment variable</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>md_token <span class="op">=</span> os.getenv(<span class="st">'MD_TOKEN'</span>)</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">not</span> md_token:</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"MotherDuck token not found. Please set the MD_TOKEN environment variable."</span>)</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Connect to MotherDuck</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>conn <span class="op">=</span> duckdb.<span class="ex">connect</span>(<span class="st">'md:?motherduck_token='</span> <span class="op">+</span> md_token)</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Attach the shared database</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    conn.execute(<span class="ss">f"ATTACH '</span><span class="sc">{</span>MD_SHARE<span class="sc">}</span><span class="ss">' AS shared_db"</span>)</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"Shared database attached successfully."</span>)</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Run the COUNT query</span></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> conn.execute(<span class="st">"SELECT COUNT(*) FROM shared_db.ExperimentCBs"</span>).fetchone()</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> result:</span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>        count <span class="op">=</span> result[<span class="dv">0</span>]</span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Total count of records in ExperimentCBs: </span><span class="sc">{</span>count<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"No results returned from the query."</span>)</span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> duckdb.Error <span class="im">as</span> e:</span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"An error occurred: </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Close the connection</span></span>
-<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    conn.close()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cell-22" class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>MD_SHARE <span class="op">=</span> <span class="st">"md:_share/Experiments_CB_2023_Q4/4bb7c820-c750-460e-8ff0-f16a7bc2a1a7"</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the MotherDuck token from environment variable</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>md_token <span class="op">=</span> os.getenv(<span class="st">'MD_TOKEN'</span>)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">not</span> md_token:</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"MotherDuck token not found. Please set the MD_TOKEN environment variable."</span>)</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Connect to MotherDuck</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>conn <span class="op">=</span> duckdb.<span class="ex">connect</span>(<span class="st">'md:?motherduck_token='</span> <span class="op">+</span> md_token)</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Attach the shared database</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>    conn.execute(<span class="ss">f"ATTACH '</span><span class="sc">{</span>MD_SHARE<span class="sc">}</span><span class="ss">' AS shared_db"</span>)</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"Shared database attached successfully."</span>)</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Run the COUNT query</span></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> conn.execute(<span class="st">"SELECT COUNT(*) FROM shared_db.ExperimentCBs"</span>).fetchone()</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> result:</span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>        count <span class="op">=</span> result[<span class="dv">0</span>]</span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Total count of records in ExperimentCBs: </span><span class="sc">{</span>count<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="st">"No results returned from the query."</span>)</span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> duckdb.Error <span class="im">as</span> e:</span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"An error occurred: </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span>:</span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Close the connection</span></span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a>    conn.close()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>An error occurred: Binder Error: Failed to attach database: database with name "shared_db" already exists</code></pre>
+<pre><code>An error occurred: Catalog Error: no database/share named '_share/Experiments_CB_2023_Q4/4bb7c820-c750-460e-8ff0-f16a7bc2a1a7' found</code></pre>
 </div>
 </div>
 <p>Example (DRAFT) Java code for connecting to database share on MotherDuck - result should be 183</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="im">java</span><span class="op">.</span><span class="im">sql</span><span class="op">.*;</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> MotherDuckShareExample <span class="op">{</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">static</span> <span class="dt">void</span> <span class="fu">main</span><span class="op">(</span><span class="bu">String</span><span class="op">[]</span> args<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>        <span class="co">// JDBC URL for MotherDuck</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> jdbcUrl <span class="op">=</span> <span class="st">"jdbc:duckdb:"</span><span class="op">;</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        <span class="co">// MotherDuck token (should be stored securely, e.g., as an environment variable)</span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> mdToken <span class="op">=</span> <span class="bu">System</span><span class="op">.</span><span class="fu">getenv</span><span class="op">(</span><span class="st">"MD_TOKEN"</span><span class="op">);</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Share URL stored in a variable</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> MD_SHARE <span class="op">=</span> <span class="st">"md:_share/Experiments_CB_2023_Q4/4bb7c820-c750-460e-8ff0"</span><span class="op">;</span></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>mdToken <span class="op">==</span> <span class="kw">null</span> <span class="op">||</span> mdToken<span class="op">.</span><span class="fu">isEmpty</span><span class="op">())</span> <span class="op">{</span></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>            <span class="bu">System</span><span class="op">.</span><span class="fu">err</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"MotherDuck token not found. Please set the MD_TOKEN environment variable."</span><span class="op">);</span></span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span><span class="op">;</span></span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span> <span class="op">(</span><span class="bu">Connection</span> conn <span class="op">=</span> <span class="bu">DriverManager</span><span class="op">.</span><span class="fu">getConnection</span><span class="op">(</span>jdbcUrl<span class="op">))</span> <span class="op">{</span></span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Set the MotherDuck token</span></span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>            <span class="cf">try</span> <span class="op">(</span><span class="bu">Statement</span> stmt <span class="op">=</span> conn<span class="op">.</span><span class="fu">createStatement</span><span class="op">())</span> <span class="op">{</span></span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>                stmt<span class="op">.</span><span class="fu">execute</span><span class="op">(</span><span class="st">"SET motherduck_token='"</span> <span class="op">+</span> mdToken <span class="op">+</span> <span class="st">"'"</span><span class="op">);</span></span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Attach the shared database</span></span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>            <span class="bu">String</span> attachQuery <span class="op">=</span> <span class="st">"ATTACH '"</span> <span class="op">+</span> MD_SHARE <span class="op">+</span> <span class="st">"' AS shared_db"</span><span class="op">;</span></span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>            <span class="cf">try</span> <span class="op">(</span><span class="bu">Statement</span> stmt <span class="op">=</span> conn<span class="op">.</span><span class="fu">createStatement</span><span class="op">())</span> <span class="op">{</span></span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>                stmt<span class="op">.</span><span class="fu">execute</span><span class="op">(</span>attachQuery<span class="op">);</span></span>
-<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>                <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Shared database attached successfully."</span><span class="op">);</span></span>
-<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
-<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Run the COUNT query</span></span>
-<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>            <span class="bu">String</span> countQuery <span class="op">=</span> <span class="st">"SELECT COUNT(*) FROM shared_db.ExperimentCBs"</span><span class="op">;</span></span>
-<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>            <span class="cf">try</span> <span class="op">(</span><span class="bu">Statement</span> stmt <span class="op">=</span> conn<span class="op">.</span><span class="fu">createStatement</span><span class="op">();</span></span>
-<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>                 <span class="bu">ResultSet</span> rs <span class="op">=</span> stmt<span class="op">.</span><span class="fu">executeQuery</span><span class="op">(</span>countQuery<span class="op">))</span> <span class="op">{</span></span>
-<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="op">(</span>rs<span class="op">.</span><span class="fu">next</span><span class="op">())</span> <span class="op">{</span></span>
-<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">long</span> count <span class="op">=</span> rs<span class="op">.</span><span class="fu">getLong</span><span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
-<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>                    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Total count of records in ExperimentCBs: "</span> <span class="op">+</span> count<span class="op">);</span></span>
-<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>                <span class="op">}</span></span>
-<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
-<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span><span class="bu">SQLException</span> e<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>            e<span class="op">.</span><span class="fu">printStackTrace</span><span class="op">();</span></span>
-<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
-<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode java code-with-copy"><code class="sourceCode java"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="im">java</span><span class="op">.</span><span class="im">sql</span><span class="op">.*;</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> MotherDuckShareExample <span class="op">{</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">static</span> <span class="dt">void</span> <span class="fu">main</span><span class="op">(</span><span class="bu">String</span><span class="op">[]</span> args<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>        <span class="co">// JDBC URL for MotherDuck</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> jdbcUrl <span class="op">=</span> <span class="st">"jdbc:duckdb:"</span><span class="op">;</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>        <span class="co">// MotherDuck token (should be stored securely, e.g., as an environment variable)</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> mdToken <span class="op">=</span> <span class="bu">System</span><span class="op">.</span><span class="fu">getenv</span><span class="op">(</span><span class="st">"MD_TOKEN"</span><span class="op">);</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Share URL stored in a variable</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>        <span class="bu">String</span> MD_SHARE <span class="op">=</span> <span class="st">"md:_share/Experiments_CB_2023_Q4/4bb7c820-c750-460e-8ff0"</span><span class="op">;</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>mdToken <span class="op">==</span> <span class="kw">null</span> <span class="op">||</span> mdToken<span class="op">.</span><span class="fu">isEmpty</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>            <span class="bu">System</span><span class="op">.</span><span class="fu">err</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"MotherDuck token not found. Please set the MD_TOKEN environment variable."</span><span class="op">);</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>            <span class="cf">return</span><span class="op">;</span></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span> <span class="op">(</span><span class="bu">Connection</span> conn <span class="op">=</span> <span class="bu">DriverManager</span><span class="op">.</span><span class="fu">getConnection</span><span class="op">(</span>jdbcUrl<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Set the MotherDuck token</span></span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>            <span class="cf">try</span> <span class="op">(</span><span class="bu">Statement</span> stmt <span class="op">=</span> conn<span class="op">.</span><span class="fu">createStatement</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>                stmt<span class="op">.</span><span class="fu">execute</span><span class="op">(</span><span class="st">"SET motherduck_token='"</span> <span class="op">+</span> mdToken <span class="op">+</span> <span class="st">"'"</span><span class="op">);</span></span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Attach the shared database</span></span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>            <span class="bu">String</span> attachQuery <span class="op">=</span> <span class="st">"ATTACH '"</span> <span class="op">+</span> MD_SHARE <span class="op">+</span> <span class="st">"' AS shared_db"</span><span class="op">;</span></span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>            <span class="cf">try</span> <span class="op">(</span><span class="bu">Statement</span> stmt <span class="op">=</span> conn<span class="op">.</span><span class="fu">createStatement</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>                stmt<span class="op">.</span><span class="fu">execute</span><span class="op">(</span>attachQuery<span class="op">);</span></span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a>                <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Shared database attached successfully."</span><span class="op">);</span></span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Run the COUNT query</span></span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a>            <span class="bu">String</span> countQuery <span class="op">=</span> <span class="st">"SELECT COUNT(*) FROM shared_db.ExperimentCBs"</span><span class="op">;</span></span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a>            <span class="cf">try</span> <span class="op">(</span><span class="bu">Statement</span> stmt <span class="op">=</span> conn<span class="op">.</span><span class="fu">createStatement</span><span class="op">();</span></span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a>                 <span class="bu">ResultSet</span> rs <span class="op">=</span> stmt<span class="op">.</span><span class="fu">executeQuery</span><span class="op">(</span>countQuery<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> <span class="op">(</span>rs<span class="op">.</span><span class="fu">next</span><span class="op">())</span> <span class="op">{</span></span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">long</span> count <span class="op">=</span> rs<span class="op">.</span><span class="fu">getLong</span><span class="op">(</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a>                    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">"Total count of records in ExperimentCBs: "</span> <span class="op">+</span> count<span class="op">);</span></span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a>                <span class="op">}</span></span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span><span class="bu">SQLException</span> e<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a>            e<span class="op">.</span><span class="fu">printStackTrace</span><span class="op">();</span></span>
+<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Similarly Javascript:</p>
 <p>```javascript const duckdb = require(‘duckdb’);</p>
 <p>// MotherDuck token (should be stored securely, e.g., as an environment variable) const mdToken = process.env.MD_TOKEN;</p>
@@ -396,7 +1191,7 @@ Databases are identical: True</code></pre>
 
 </main> <!-- /main -->
 <script type="application/vnd.jupyter.widget-state+json">
-{"state":{"1ecef680c7c64fbea613be70f9f49cb9":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":"auto"}},"8e82febbfcf24aaa97c3622d2ee03eef":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"ProgressStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"ProgressStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","bar_color":"black","description_width":""}},"c2aacc6530a6406d9bc58b61525e9755":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"FloatProgressModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"FloatProgressModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"ProgressView","bar_style":"","description":"","description_allow_html":false,"layout":"IPY_MODEL_1ecef680c7c64fbea613be70f9f49cb9","max":100,"min":0,"orientation":"horizontal","style":"IPY_MODEL_8e82febbfcf24aaa97c3622d2ee03eef","tabbable":null,"tooltip":null,"value":100}}},"version_major":2,"version_minor":0}
+{"state":{"08ada1037fb944bd923b6ae6004a2beb":{"model_module":"@jupyter-widgets/base","model_module_version":"2.0.0","model_name":"LayoutModel","state":{"_model_module":"@jupyter-widgets/base","_model_module_version":"2.0.0","_model_name":"LayoutModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"LayoutView","align_content":null,"align_items":null,"align_self":null,"border_bottom":null,"border_left":null,"border_right":null,"border_top":null,"bottom":null,"display":null,"flex":null,"flex_flow":null,"grid_area":null,"grid_auto_columns":null,"grid_auto_flow":null,"grid_auto_rows":null,"grid_column":null,"grid_gap":null,"grid_row":null,"grid_template_areas":null,"grid_template_columns":null,"grid_template_rows":null,"height":null,"justify_content":null,"justify_items":null,"left":null,"margin":null,"max_height":null,"max_width":null,"min_height":null,"min_width":null,"object_fit":null,"object_position":null,"order":null,"overflow":null,"padding":null,"right":null,"top":null,"visibility":null,"width":"auto"}},"69a2cf3b3fcb4d5abbe8eb3f9b42cd08":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"FloatProgressModel","state":{"_dom_classes":[],"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"FloatProgressModel","_view_count":null,"_view_module":"@jupyter-widgets/controls","_view_module_version":"2.0.0","_view_name":"ProgressView","bar_style":"","description":"","description_allow_html":false,"layout":"IPY_MODEL_08ada1037fb944bd923b6ae6004a2beb","max":100,"min":0,"orientation":"horizontal","style":"IPY_MODEL_95917bd637124c8e9457fa8cf6cf9ba1","tabbable":null,"tooltip":null,"value":100}},"95917bd637124c8e9457fa8cf6cf9ba1":{"model_module":"@jupyter-widgets/controls","model_module_version":"2.0.0","model_name":"ProgressStyleModel","state":{"_model_module":"@jupyter-widgets/controls","_model_module_version":"2.0.0","_model_name":"ProgressStyleModel","_view_count":null,"_view_module":"@jupyter-widgets/base","_view_module_version":"2.0.0","_view_name":"StyleView","bar_color":"black","description_width":""}}},"version_major":2,"version_minor":0}
 </script>
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
