@@ -147,7 +147,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#database-details" id="toc-database-details" class="nav-link" data-scroll-target="#database-details">Database details</a>
   <ul class="collapse">
   <li><a href="#rpe---entity-relationship-diagram" id="toc-rpe---entity-relationship-diagram" class="nav-link" data-scroll-target="#rpe---entity-relationship-diagram">RPE - Entity Relationship Diagram</a></li>
-  <li><a href="#cb---entity-relationship-diagram" id="toc-cb---entity-relationship-diagram" class="nav-link" data-scroll-target="#cb---entity-relationship-diagram">CB - Entity Relationship Diagram</a></li>
+  <li><a href="#cb---entity-relationship-diagrams-erd" id="toc-cb---entity-relationship-diagrams-erd" class="nav-link" data-scroll-target="#cb---entity-relationship-diagrams-erd">CB - Entity Relationship Diagrams (ERD)</a></li>
   <li><a href="#mappings-of-dataclasses-to-database-tables" id="toc-mappings-of-dataclasses-to-database-tables" class="nav-link" data-scroll-target="#mappings-of-dataclasses-to-database-tables">Mappings of dataclasses to database tables</a></li>
   </ul></li>
   </ul></li>
@@ -413,19 +413,28 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </section>
-<section id="cb---entity-relationship-diagram" class="level3">
-<h3 class="anchored" data-anchor-id="cb---entity-relationship-diagram">CB - Entity Relationship Diagram</h3>
+<section id="cb---entity-relationship-diagrams-erd" class="level3">
+<h3 class="anchored" data-anchor-id="cb---entity-relationship-diagrams-erd">CB - Entity Relationship Diagrams (ERD)</h3>
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
 <div>
 <p></p><figure class="figure"><p></p>
 <div>
 <pre class="mermaid mermaid-js">erDiagram
-    ExperimentCB ||--o{ TrialCB : contains
-    TrialCB ||--o{ EventCB : has
-    TrialCB ||--o| ResponseCB : may_have
+    ExperimentCBs ||--o{ TrialCBs : contains
+    TrialCBs ||--o{ ResponseCBs : has
+    TrialCBs ||--o{ EventCBs : has
+    ExperimentCBs ||--o{ SubjectCBs : aggregates
+    Corrections ||--|{ CorrectionsSplit : splits
+    ExperimentCBs ||--o{ ExperimentCBsCorrected : corrects
+    TrialCBs ||--o{ TrialCBsCorrected : corrects
+    ResponseCBs ||--o{ ResponseCBsCorrected : corrects
+    EventCBs ||--o{ EventCBsCorrected : corrects
+    ExperimentCBsCorrected ||--o{ TrialCBsCorrected : contains
+    TrialCBsCorrected ||--o{ ResponseCBsCorrected : has
+    TrialCBsCorrected ||--o{ EventCBsCorrected : has
 
-    ExperimentCB {
+    ExperimentCBs {
         int ExperimentID PK
         string Cohort
         string SubjectName
@@ -433,39 +442,115 @@ ul.task-list li input[type="checkbox"] {
         int SessionNumber
         string SessionType
         string ExperimentType
+        string Direction
         string Comment
         datetime DateTime
         string LogFileName
         json Parameters
     }
 
-    TrialCB {
+    TrialCBs {
         int TrialID PK
         int ExperimentID FK
         int TrialNumber
         string ResponseType
         string TrialSubType
-        string Direction
         string CriterionType
-        float CriterionCount
+        int CriterionCount
         datetime TrialStartTime
         datetime TrialEndTime
-        string SessionType
     }
 
-    ResponseCB {
+    ResponseCBs {
         int ResponseID PK
         int TrialID FK
         float ResponseTime
         datetime EventDateTime
     }
 
-    EventCB {
+    EventCBs {
         int EventID PK
         int TrialID FK
         string EventType
         datetime EventTime
         float ElapsedTime
+    }
+
+    SubjectCBs {
+        string SubjectName PK
+        int SubjectNumber
+        string Cohort
+        string Direction
+        int TotalExperiments
+    }
+
+    Corrections {
+        string Cohort
+        date ExperimentDate
+        string SessionType
+        string SubjectName
+        int TrialNumber
+        string TrialType
+        float ResponseTime
+        string ResponseType
+        string Comment
+        string LogFilename
+        string CorrectTable
+        string CorrectField
+        string CurrentValue
+        string CorrectValue
+    }
+
+    CorrectionsSplit {
+        string TableToCorrect
+        string FieldToCorrect
+        string ValueToCorrect
+    }
+
+    ExperimentCBsCorrected {
+        int ExperimentID PK
+        string Cohort
+        string SubjectName
+        int SubjectNumber
+        int SessionNumber
+        string SessionType
+        string ExperimentType
+        string Direction
+        string Comment
+        datetime DateTime
+        string LogFileName
+        json Parameters
+        string DataSource
+    }
+
+    TrialCBsCorrected {
+        int TrialID PK
+        int ExperimentID FK
+        int TrialNumber
+        string ResponseType
+        string TrialSubType
+        string CriterionType
+        int CriterionCount
+        datetime TrialStartTime
+        datetime TrialEndTime
+        string CorrectedFlag
+    }
+
+    ResponseCBsCorrected {
+        int ResponseID PK
+        int TrialID FK
+        float ResponseTime
+        datetime EventDateTime
+        string CorrectedFlag
+    }
+
+    EventCBsCorrected {
+        int EventID PK
+        int TrialID FK
+        string EventType
+        datetime EventTime
+        float ElapsedTime
+        string CorrectedFlag
     }
 </pre>
 </div>
@@ -473,6 +558,211 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </div>
+<section id="experimentcbscorrected" class="level4">
+<h4 class="anchored" data-anchor-id="experimentcbscorrected"><code>ExperimentCBsCorrected</code></h4>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">erDiagram
+    ExperimentCBs ||--|{ ExperimentCBsCorrected : "original data"
+    AddExperiments ||--|{ ReformattedAddExperiments : reformats
+    ReformattedAddExperiments ||--|{ ExperimentCBsCorrected : "adds new experiments"
+    Corrections ||--|{ AddExperiments : "identifies new experiments"
+    SubjectCBs ||--o{ ReformattedAddExperiments : "provides subject info"
+
+    ExperimentCBs {
+        int ExperimentID PK
+        string LogFileName
+    }
+    AddExperiments {
+        string LogFilename
+        string DataSource
+    }
+    ReformattedAddExperiments {
+        int ExperimentID PK
+        string LogFilename
+        string DataSource
+    }
+    ExperimentCBsCorrected {
+        int ExperimentID PK
+        string LogFileName
+        string DataSource
+    }
+    Corrections {
+        string LogFilename
+    }
+    SubjectCBs {
+        string SubjectName PK
+        int SubjectNumber
+        string Direction
+    }
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</section>
+<section id="trialcbscorrected" class="level4">
+<h4 class="anchored" data-anchor-id="trialcbscorrected"><code>TrialCBsCorrected</code></h4>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">erDiagram
+    TrialCBs ||--|{ CorrectTrials : "corrects existing trials"
+    Corrections ||--|{ AddTrials : "identifies new trials"
+    CorrectTrials ||--|{ TrialCBsCorrected : combines
+    AddTrials ||--|{ TrialCBsCorrected : combines
+    ExperimentCBsCorrected ||--o{ AddTrials : "links new trials"
+    ExperimentCBsCorrected ||--o{ CorrectTrials : "links existing trials"
+
+    TrialCBs {
+        int TrialID PK
+        int ExperimentID FK
+        string ResponseType
+    }
+    CorrectTrials {
+        int TrialID PK
+        int ExperimentID FK
+        string ResponseType
+        string CorrectedFlag
+    }
+    AddTrials {
+        int ExperimentID FK
+        int TrialNumber
+        string ResponseType
+        string CorrectedFlag
+    }
+    TrialCBsCorrected {
+        int TrialID PK
+        int ExperimentID FK
+        string ResponseType
+        string CorrectedFlag
+    }
+    Corrections {
+        string LogFilename
+        int TrialNumber
+        string ResponseType
+    }
+    ExperimentCBsCorrected {
+        int ExperimentID PK
+        string LogFileName
+    }
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</section>
+<section id="responsecbscorrected" class="level4">
+<h4 class="anchored" data-anchor-id="responsecbscorrected"><code>ResponseCBsCorrected</code></h4>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">erDiagram
+    ResponseCBs ||--|{ ExistingResponses : "corrects existing responses"
+    Corrections ||--|{ NewResponses : "adds new responses"
+    ExistingResponses ||--|{ ResponseCBsCorrected : combines
+    NewResponses ||--|{ ResponseCBsCorrected : combines
+    TrialCBsCorrected ||--o{ NewResponses : "links new responses"
+    TrialCBsCorrected ||--o{ ExistingResponses : "links existing responses"
+
+    ResponseCBs {
+        int ResponseID PK
+        int TrialID FK
+        float ResponseTime
+    }
+    ExistingResponses {
+        int ResponseID PK
+        int TrialID FK
+        float ResponseTime
+        string CorrectedFlag
+    }
+    NewResponses {
+        int TrialID FK
+        float ResponseTime
+        string CorrectedFlag
+    }
+    ResponseCBsCorrected {
+        int ResponseID PK
+        int TrialID FK
+        float ResponseTime
+        string CorrectedFlag
+    }
+    Corrections {
+        string LogFilename
+        int TrialNumber
+        float ResponseTime
+    }
+    TrialCBsCorrected {
+        int TrialID PK
+        int ExperimentID FK
+    }
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</section>
+<section id="eventcbscorrected" class="level4">
+<h4 class="anchored" data-anchor-id="eventcbscorrected"><code>EventCBsCorrected</code></h4>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">erDiagram
+    EventCBs ||--|{ ExistingEvents : "includes existing events"
+    TrialCBsCorrected ||--|{ NewTrialEvents : "generates placeholder events"
+    ExistingEvents ||--|{ EventCBsCorrected : combines
+    NewTrialEvents ||--|{ EventCBsCorrected : combines
+
+    EventCBs {
+        int EventID PK
+        int TrialID FK
+        string EventType
+        datetime EventTime
+        float ElapsedTime
+    }
+    ExistingEvents {
+        int EventID PK
+        int TrialID FK
+        string EventType
+        datetime EventTime
+        float ElapsedTime
+        string CorrectedFlag
+    }
+    NewTrialEvents {
+        int TrialID FK
+        string CorrectedFlag
+    }
+    EventCBsCorrected {
+        int EventID PK
+        int TrialID FK
+        string EventType
+        datetime EventTime
+        float ElapsedTime
+        string CorrectedFlag
+    }
+    TrialCBsCorrected {
+        int TrialID PK
+        string CorrectedFlag
+    }
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</section>
 </section>
 <section id="mappings-of-dataclasses-to-database-tables" class="level3">
 <h3 class="anchored" data-anchor-id="mappings-of-dataclasses-to-database-tables">Mappings of dataclasses to database tables</h3>
