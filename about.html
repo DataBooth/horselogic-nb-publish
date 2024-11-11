@@ -415,6 +415,42 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="cb---entity-relationship-diagrams-erd" class="level3">
 <h3 class="anchored" data-anchor-id="cb---entity-relationship-diagrams-erd">CB - Entity Relationship Diagrams (ERD)</h3>
+<p>The Entity-Relationship Diagram (ERD) below can be summarised as follows:</p>
+<ol type="1">
+<li><strong>Core Data Tables</strong>:
+<ul>
+<li><code>ExperimentCBs</code>: This is the main table that stores information about each experiment. It includes details like the subject’s name, experiment date, and type of experiment.</li>
+<li><code>TrialCBs</code>: This table contains information about individual trials within each experiment. It’s connected to ExperimentCBs because each experiment consists of multiple trials.</li>
+<li><code>ResponseCBs</code>: This table records the responses given during each trial. It’s linked to <code>TrialCBs</code> because each trial can have a response.</li>
+<li><code>EventCBs</code>: This table stores events that occur during trials. It’s also connected to <code>TrialCBs</code> as events are associated with specific trials.</li>
+</ul></li>
+<li><strong>Supporting Tables</strong>:
+<ul>
+<li><code>SubjectCBs</code>: This table holds information about the subjects (e.g.&nbsp;horses) involved in the experiments. It’s connected to <code>ExperimentCBs</code> as each experiment involves a specific subject.</li>
+<li><code>Corrections</code>: This is a special table that contains information about corrections or additions that need to be made to the existing data (which is a consolidated table of the information in the Corrections workbook).</li>
+</ul></li>
+<li><strong>Correction Process</strong>:
+<ul>
+<li><code>CorrectionsSplit</code>: This view breaks down the <code>Corrections</code> table into more specific pieces of information.</li>
+<li><code>AddExperiments</code> and <code>ReformattedAddExperiments</code>: These views identify and format new experiments that need to be added to the database. It turns out there is only one experiment to add.</li>
+<li><code>AddTrials</code>: This view identifies new trials that need to be added to existing experiments.</li>
+<li><code>CorrectTrials</code>: This view shows what corrections need to be made to existing trials.</li>
+</ul></li>
+<li><strong>Corrected Data Views</strong>:
+<ul>
+<li><code>ExperimentCBsCorrected</code>: This view combines the original experiment data with any new experiments that need to be added.</li>
+<li><code>TrialCBsCorrected</code>: This view shows all trials, including both original and new ones, with any necessary corrections applied.</li>
+<li><code>ResponseCBsCorrected</code>: This view presents all responses, including both original and new ones, with any necessary corrections applied.</li>
+<li><code>EventCBsCorrected</code>: This view shows all events, including both original and new ones, with any necessary additions for new trials.</li>
+</ul></li>
+</ol>
+<p>The overall data flow is:</p>
+<ol type="1">
+<li>Original data is stored in the core tables (<code>ExperimentCBs</code>, <code>TrialCBs</code>, <code>ResponseCBs</code>, <code>EventCBs</code>).</li>
+<li>Corrections and additions are specified in the <code>Corrections</code> table.</li>
+<li>Various views process these corrections and additions.</li>
+<li>The final corrected views (<code>ExperimentCBsCorrected</code>, <code>TrialCBsCorrected</code>, <code>ResponseCBsCorrected</code>, <code>EventCBsCorrected</code>) present the updated and corrected data for use in subsequent analysis.</li>
+</ol>
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
 <div>
@@ -426,6 +462,10 @@ ul.task-list li input[type="checkbox"] {
     TrialCBs ||--o{ EventCBs : has
     ExperimentCBs ||--o{ SubjectCBs : aggregates
     Corrections ||--|{ CorrectionsSplit : splits
+    Corrections ||--o{ AddExperiments : identifies
+    Corrections ||--o{ AddTrials : identifies
+    Corrections ||--o{ CorrectTrials : informs
+    Corrections ||--o{ ResponseCBsCorrected : informs
     ExperimentCBs ||--o{ ExperimentCBsCorrected : corrects
     TrialCBs ||--o{ TrialCBsCorrected : corrects
     ResponseCBs ||--o{ ResponseCBsCorrected : corrects
@@ -433,20 +473,16 @@ ul.task-list li input[type="checkbox"] {
     ExperimentCBsCorrected ||--o{ TrialCBsCorrected : contains
     TrialCBsCorrected ||--o{ ResponseCBsCorrected : has
     TrialCBsCorrected ||--o{ EventCBsCorrected : has
+    AddExperiments ||--o{ ReformattedAddExperiments : reformats
+    ReformattedAddExperiments ||--o{ ExperimentCBsCorrected : adds
+    AddTrials ||--o{ TrialCBsCorrected : adds
+    CorrectTrials ||--o{ TrialCBsCorrected : informs
+    CorrectionsSplit ||--o{ CorrectTrials : informs
+    CorrectionsSplit ||--o{ ResponseCBsCorrected : informs
 
     ExperimentCBs {
         int ExperimentID PK
-        string Cohort
-        string SubjectName
-        int SubjectNumber
-        int SessionNumber
-        string SessionType
-        string ExperimentType
-        string Direction
-        string Comment
-        datetime DateTime
         string LogFileName
-        json Parameters
     }
 
     TrialCBs {
@@ -454,54 +490,29 @@ ul.task-list li input[type="checkbox"] {
         int ExperimentID FK
         int TrialNumber
         string ResponseType
-        string TrialSubType
-        string CriterionType
-        int CriterionCount
-        datetime TrialStartTime
-        datetime TrialEndTime
     }
 
     ResponseCBs {
         int ResponseID PK
         int TrialID FK
         float ResponseTime
-        datetime EventDateTime
     }
 
     EventCBs {
         int EventID PK
         int TrialID FK
-        string EventType
-        datetime EventTime
-        float ElapsedTime
-    }
-
-    SubjectCBs {
-        string SubjectName PK
-        int SubjectNumber
-        string Cohort
-        string Direction
-        int TotalExperiments
     }
 
     Corrections {
-        string Cohort
-        date ExperimentDate
-        string SessionType
-        string SubjectName
-        int TrialNumber
-        string TrialType
-        float ResponseTime
-        string ResponseType
-        string Comment
         string LogFilename
-        string CorrectTable
-        string CorrectField
-        string CurrentValue
-        string CorrectValue
+        int TrialNumber
+        string ResponseType
+        float ResponseTime
     }
 
     CorrectionsSplit {
+        string LogFilename
+        int TrialNumber
         string TableToCorrect
         string FieldToCorrect
         string ValueToCorrect
@@ -509,47 +520,42 @@ ul.task-list li input[type="checkbox"] {
 
     ExperimentCBsCorrected {
         int ExperimentID PK
-        string Cohort
-        string SubjectName
-        int SubjectNumber
-        int SessionNumber
-        string SessionType
-        string ExperimentType
-        string Direction
-        string Comment
-        datetime DateTime
-        string LogFileName
-        json Parameters
         string DataSource
     }
 
     TrialCBsCorrected {
         int TrialID PK
-        int ExperimentID FK
-        int TrialNumber
-        string ResponseType
-        string TrialSubType
-        string CriterionType
-        int CriterionCount
-        datetime TrialStartTime
-        datetime TrialEndTime
         string CorrectedFlag
     }
 
     ResponseCBsCorrected {
         int ResponseID PK
-        int TrialID FK
-        float ResponseTime
-        datetime EventDateTime
         string CorrectedFlag
     }
 
     EventCBsCorrected {
         int EventID PK
-        int TrialID FK
-        string EventType
-        datetime EventTime
-        float ElapsedTime
+        string CorrectedFlag
+    }
+
+    AddExperiments {
+        string LogFilename
+        string DataSource
+    }
+
+    ReformattedAddExperiments {
+        int ExperimentID PK
+        string DataSource
+    }
+
+    AddTrials {
+        int ExperimentID FK
+        int TrialNumber
+        string CorrectedFlag
+    }
+
+    CorrectTrials {
+        int TrialID PK
         string CorrectedFlag
     }
 </pre>
@@ -560,6 +566,14 @@ ul.task-list li input[type="checkbox"] {
 </div>
 <section id="experimentcbscorrected" class="level4">
 <h4 class="anchored" data-anchor-id="experimentcbscorrected"><code>ExperimentCBsCorrected</code></h4>
+<p>This view combines original experiment data with new experiments that need to be added:</p>
+<ul>
+<li>It starts with the original experiment data from ExperimentCBs.</li>
+<li>It looks at a list of new experiments (AddExperiments) that need to be added derived from the <code>Corrections</code> table.</li>
+<li>These new experiments are reformatted (<code>ReformattedAddExperiments</code>) to match the structure of existing experiments.</li>
+<li>The view then combines the original experiments with these new, reformatted experiments.</li>
+<li>It also looks up information from the <code>SubjectCBs</code> table to fill in some details about the properties of the new experiments.</li>
+</ul>
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
 <div>
@@ -575,6 +589,7 @@ ul.task-list li input[type="checkbox"] {
     ExperimentCBs {
         int ExperimentID PK
         string LogFileName
+        string DataSource
     }
     AddExperiments {
         string LogFilename
@@ -607,6 +622,14 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="trialcbscorrected" class="level4">
 <h4 class="anchored" data-anchor-id="trialcbscorrected"><code>TrialCBsCorrected</code></h4>
+<p>This view handles both existing trials and any corrections needed and new trials that need to be added (due to any new experiments):</p>
+<ul>
+<li>It starts with the original trial data from <code>TrialCBs</code>.</li>
+<li>It applies corrections to existing trials (<code>CorrectTrials</code>), fixing the <code>ResponseType</code>.</li>
+<li>It also adds completely new trials (<code>AddTrials</code>) for new experiments.</li>
+<li>The view combines the corrected existing trials and the new trials.</li>
+<li>It ensures that each trial has a unique identifier.</li>
+</ul>
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
 <div>
@@ -619,6 +642,7 @@ ul.task-list li input[type="checkbox"] {
     AddTrials ||--|{ TrialCBsCorrected : combines
     ExperimentCBsCorrected ||--o{ AddTrials : "links new trials"
     ExperimentCBsCorrected ||--o{ CorrectTrials : "links existing trials"
+    ResponseCBs ||--o{ CorrectTrials : "provides ResponseTime for info"
 
     TrialCBs {
         int TrialID PK
@@ -652,6 +676,11 @@ ul.task-list li input[type="checkbox"] {
         int ExperimentID PK
         string LogFileName
     }
+    ResponseCBs {
+        int ResponseID PK
+        int TrialID FK
+        float ResponseTime
+    }
 </pre>
 </div>
 <p></p></figure><p></p>
@@ -661,6 +690,14 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="responsecbscorrected" class="level4">
 <h4 class="anchored" data-anchor-id="responsecbscorrected"><code>ResponseCBsCorrected</code></h4>
+<p>This view deals with the responses recorded during trials:</p>
+<ul>
+<li>It starts with the original response data from <code>ResponseCBs</code>.</li>
+<li>It applies any corrections to existing responses as necessary, fixing <code>ResponseTime</code>.</li>
+<li>It adds new responses for trials in new experiments.</li>
+<li>The view combines the corrected existing responses and the new responses.</li>
+<li>It uses information from the <code>TrialCBsCorrected</code> and <code>ExperimentCBsCorrected</code> views to ensure everything lines up correctly.</li>
+</ul>
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
 <div>
@@ -673,6 +710,8 @@ ul.task-list li input[type="checkbox"] {
     NewResponses ||--|{ ResponseCBsCorrected : combines
     TrialCBsCorrected ||--o{ NewResponses : "links new responses"
     TrialCBsCorrected ||--o{ ExistingResponses : "links existing responses"
+    ExperimentCBsCorrected ||--o{ NewResponses : "links to experiments"
+    CorrectionsSplit ||--o{ ExistingResponses : "provides correction info"
 
     ResponseCBs {
         int ResponseID PK
@@ -705,6 +744,17 @@ ul.task-list li input[type="checkbox"] {
         int TrialID PK
         int ExperimentID FK
     }
+    ExperimentCBsCorrected {
+        int ExperimentID PK
+        string LogFileName
+    }
+    CorrectionsSplit {
+        string LogFilename
+        int TrialNumber
+        string TableToCorrect
+        string FieldToCorrect
+        string ValueToCorrect
+    }
 </pre>
 </div>
 <p></p></figure><p></p>
@@ -714,6 +764,13 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="eventcbscorrected" class="level4">
 <h4 class="anchored" data-anchor-id="eventcbscorrected"><code>EventCBsCorrected</code></h4>
+<p>This view handles events that occur during trials:</p>
+<ul>
+<li>It starts with the original event data from <code>EventCBs</code>.</li>
+<li>It keeps all existing events as is.</li>
+<li>For new trials that were added, it creates placeholder events (<code>NewTrialEvents</code>).</li>
+<li>The view combines the existing events and the placeholder events for new trials</li>
+</ul>
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
 <div>
