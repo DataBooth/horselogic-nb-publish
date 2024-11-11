@@ -133,7 +133,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#about-this-repository" id="toc-about-this-repository" class="nav-link active" data-scroll-target="#about-this-repository">About This Repository</a>
   <ul class="collapse">
   <li><a href="#purpose" id="toc-purpose" class="nav-link" data-scroll-target="#purpose">Purpose</a></li>
-  <li><a href="#high-lvel-workflow" id="toc-high-lvel-workflow" class="nav-link" data-scroll-target="#high-lvel-workflow">High Lvel Workflow</a>
+  <li><a href="#high-level-workflow" id="toc-high-level-workflow" class="nav-link" data-scroll-target="#high-level-workflow">High Level Workflow</a>
   <ul class="collapse">
   <li><a href="#process-flow-diagram" id="toc-process-flow-diagram" class="nav-link" data-scroll-target="#process-flow-diagram">Process Flow Diagram</a></li>
   </ul></li>
@@ -184,8 +184,8 @@ ul.task-list li input[type="checkbox"] {
 <p>The provided notebooks and supporting code are part of a data analysis pipeline for horse behavioral experiments. The primary goal is to process and analyse log files generated during these experiments, and to store this data in databases, for both Reward Prediction Error (RPE) and Cognitive Bias (CB) experiments.</p>
 <p>The repository also contains the code for controlling the experiments performed on the RaspeberryPi (see the <code>src</code> directory).</p>
 </section>
-<section id="high-lvel-workflow" class="level2">
-<h2 class="anchored" data-anchor-id="high-lvel-workflow">High Lvel Workflow</h2>
+<section id="high-level-workflow" class="level2">
+<h2 class="anchored" data-anchor-id="high-level-workflow">High Level Workflow</h2>
 <p>The provided code and notebooks focus on two types of experiments: RPE and CB. The process is essentially the same for both RPE and CB experiments, with minor differences in data structure (e.g.&nbsp;an additional table <code>ResponsesCB</code> for CB experiments).</p>
 <ol type="1">
 <li>Logfile Reconciliation: <code>logfile-reconciliation-CB.ipynb</code> <code>logfile-reconciliation-RPE.ipynb</code></li>
@@ -226,8 +226,16 @@ ul.task-list li input[type="checkbox"] {
 <ul>
 <li><code>corrections-to-database-CB.ipynb</code></li>
 </ul>
-<p><strong>Purpose:</strong> For CB experiments only, load and apply manual corrections to the CB database.</p>
+<p><strong>Purpose:</strong> For CB experiments only, load manual corrections to the CB database.</p>
 <p><strong>Steps:</strong> - Load the corrections from the Corrections workbook (field, current value, corrected value). - Insert these into a CB database table. - Apply corrections to a new view on the data.</p>
+<ol start="6" type="1">
+<li>Apply corrections to CB database:</li>
+</ol>
+<ul>
+<li><code>database-apply-corrections-CB.ipynb</code></li>
+</ul>
+<p><strong>Purpose:</strong> For CB experiments only, apply the manual corrections to the CB database.</p>
+<p><strong>Steps:</strong> - Load the corrections from the Corrections table (field, current value, corrected value). - Apply corrections to create new “corrected” views on the data.</p>
 <section id="process-flow-diagram" class="level3">
 <h3 class="anchored" data-anchor-id="process-flow-diagram">Process Flow Diagram</h3>
 <div class="cell" data-layout-align="default">
@@ -236,15 +244,15 @@ ul.task-list li input[type="checkbox"] {
 <p></p><figure class="figure"><p></p>
 <div>
 <pre class="mermaid mermaid-js">graph TD
-    A[1. Start] --&gt; B[2. Load Log files]
-    B --&gt; C[3. Parse filenames]
-    C --&gt; D[4. Apply Exclusion rules]
-    D --&gt; E[5. Export Included/Excluded lists]
-    E --&gt; F[6. Load Included Log files]
-    F --&gt; G[7. Parse and extract data]
-    G --&gt; H[8. Insert data into `DuckDB`]
-    H --&gt; I[9. Export Database tables]
-    I --&gt; J[10. End]
+    A[Start] --&gt; B[Load Log files]
+    B --&gt; C[Parse filenames]
+    C --&gt; D[Apply Exclusion rules]
+    D --&gt; E[Export Included/Excluded lists]
+    E --&gt; F[Load Included Log files]
+    F --&gt; G[Parse and extract data]
+    G --&gt; H[Insert data into `DuckDB`]
+    H --&gt; I[Load and Apply Corrections]
+    I --&gt; J[End]
 
     classDef process fill:#f9f,stroke:#333,stroke-width:2px;
     class A,B,C,D,E,F,G,H,I,J process;
@@ -264,8 +272,8 @@ ul.task-list li input[type="checkbox"] {
 <li>Load Included Log Files: The included log files are loaded for detailed analysis.</li>
 <li>Parse and Extract Data: Relevant data is extracted from each log file and structured for database insertion.</li>
 <li>Insert Data into <code>DuckDB</code>: The parsed data is inserted into a <code>DuckDB</code> database. For CB experiments only, manual corrections are loaded and applied.</li>
-<li>Export Database Tables: The database tables are exported to human-readable formats for review.</li>
-<li>End: The process concludes with the export of database tables.</li>
+<li>Load and Apply Corrections (CB only).</li>
+<li>End: The process concludes.</li>
 </ol>
 <p>This workflow ensures that only relevant and high-quality log files are included in the analysis, and the data is structured and stored in a database for both RPE and CB experiments. The process is designed to be flexible and repeatable for both experiment types, with minor adjustments to account for the differences in data structure. The database queries serve as a foundation for future in-depth analysis, providing a way to verify data integrity and demonstrate typical data retrieval operations.</p>
 </section>
@@ -305,7 +313,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="logfile-classes" class="level3">
 <h3 class="anchored" data-anchor-id="logfile-classes">Logfile Classes</h3>
 <ol type="1">
-<li>Logfile Class: This is like a digital version of a physical log file. It can:</li>
+<li><code>Logfile</code> Class: This is like a digital version of a physical log file. It can:</li>
 </ol>
 <ul>
 <li>Read and store the contents of a log file</li>
@@ -313,7 +321,7 @@ ul.task-list li input[type="checkbox"] {
 <li>Interpret the contents of the file to create <code>Experiment</code>, <code>Trial</code>, and <code>Event</code> objects (for both RPE and CB experiments)</li>
 </ul>
 <ol start="2" type="1">
-<li>Logs Class: This is like a file cabinet for all your log files. It can:</li>
+<li><code>Logs</code> Class: This is like a file cabinet for all your log files. It can:</li>
 </ol>
 <ul>
 <li>Find all the log files in a specific folder</li>
@@ -359,6 +367,10 @@ ul.task-list li input[type="checkbox"] {
 <li>How long it took (response time)</li>
 </ul>
 <p>These classes work together to organise and make sense of the data from your experiments. They turn raw log files into structured data that’s easier to analyse and understand. The <code>Logfile</code> class does the hard work of interpreting each file, while the <code>Logs</code> class manages the collection of all your files.</p>
+<section id="corrected-views" class="level4">
+<h4 class="anchored" data-anchor-id="corrected-views">Corrected views</h4>
+<p>While the “corrected” views are defined in the <code>corrections-to-database-CB.ipynb</code> and <a href="notebooks/database-apply-corrections-CB.ipynb"><code>notebooks/database-apply-corrections-CB.ipynb</code></a><code>notebooks, they are also been extracted into</code>sql/corrections-to-database-CB.sql<code>and</code>sql/database-apply-corrections-CB.sql` for ease of reference.</p>
+</section>
 </section>
 </section>
 <section id="database-details" class="level2">
