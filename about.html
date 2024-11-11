@@ -188,8 +188,12 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="high-level-workflow">High Level Workflow</h2>
 <p>The provided code and notebooks focus on two types of experiments: RPE and CB. The process is essentially the same for both RPE and CB experiments, with minor differences in data structure (e.g.&nbsp;an additional table <code>ResponsesCB</code> for CB experiments).</p>
 <ol type="1">
-<li>Logfile Reconciliation: <a href="logfile-reconciliation-CB.html"><code>logfile-reconciliation-CB.ipynb</code></a> <a href="logfile-reconciliation-RPE.html"><code>logfile-reconciliation-RPE.ipynb</code></a></li>
+<li>Logfile Reconciliation:</li>
 </ol>
+<ul>
+<li><a href="logfile-reconciliation-CB.html"><code>logfile-reconciliation-CB.ipynb</code></a></li>
+<li><a href="logfile-reconciliation-RPE.html"><code>logfile-reconciliation-RPE.ipynb</code></a></li>
+</ul>
 <p><strong>Purpose:</strong> Identify which log files should be included or excluded from the analysis for each experiment type.</p>
 <p><strong>Steps:</strong></p>
 <ul>
@@ -197,7 +201,7 @@ ul.task-list li input[type="checkbox"] {
 <li>Apply Exclusion Rules: Exclude log files based on predefined rules (e.g., test runs, bad data).</li>
 <li>Export Lists: Export lists of included and excluded log files for further processing.</li>
 </ul>
-<ol start="2" type="1">
+<ol type="1">
 <li>Logfile to Database:</li>
 </ol>
 <ul>
@@ -215,8 +219,8 @@ ul.task-list li input[type="checkbox"] {
 <li>Database Queries:</li>
 </ol>
 <ul>
-<li><code>database-queries-CB.ipynb</code></li>
-<li><code>database-queries-RPE.ipynb</code></li>
+<li><a href="database-queries-CB.html"><code>database-queries-CB.ipynb</code></a></li>
+<li><a href="database-queries-RPE.html"><code>database-queries-RPE.ipynb</code></a></li>
 </ul>
 <p><strong>Purpose:</strong> Cross-check the data in the databases and provide examples of typical queries for each experiment type.</p>
 <p><strong>Steps:</strong></p>
@@ -230,7 +234,7 @@ ul.task-list li input[type="checkbox"] {
 <li>Database Consistency Checks</li>
 </ol>
 <ul>
-<li><code>database-checks-CB.ipynb</code></li>
+<li><a href="database-checks-CB.html"><code>database-checks-CB.ipynb</code></a></li>
 </ul>
 <p><strong>Purpose:</strong> Perform consistency checks on the local DuckDB CB database created using <code>logfile-to-database-CB.ipynb</code>.</p>
 <p><strong>Steps:</strong></p>
@@ -252,7 +256,7 @@ ul.task-list li input[type="checkbox"] {
 <li>Corrections to CB database:</li>
 </ol>
 <ul>
-<li><code>corrections-to-database-CB.ipynb</code></li>
+<li><a href="corrections-to-database-CB.html"><code>corrections-to-database-CB.ipynb</code></a></li>
 </ul>
 <p><strong>Purpose:</strong> For CB experiments only, load manual corrections to the CB database.</p>
 <p><strong>Steps:</strong></p>
@@ -265,7 +269,7 @@ ul.task-list li input[type="checkbox"] {
 <li>Apply corrections to CB database:</li>
 </ol>
 <ul>
-<li><code>database-apply-corrections-CB.ipynb</code></li>
+<li><a href="database-apply-corrections-CB.html"><code>database-apply-corrections-CB.ipynb</code></a></li>
 </ul>
 <p><strong>Purpose:</strong> For CB experiments only, apply the manual corrections to the CB database.</p>
 <p><strong>Steps:</strong></p>
@@ -288,7 +292,7 @@ ul.task-list li input[type="checkbox"] {
     E --&gt; F[Load Included Log files]
     F --&gt; G[Parse and extract data]
     G --&gt; H[Insert data into `DuckDB`]
-    H --&gt; I[Load and Apply Corrections]
+    H --&gt; I[Load and Apply Corrections (CB only)]
     I --&gt; J[End]
 
     classDef process fill:#f9f,stroke:#333,stroke-width:2px;
